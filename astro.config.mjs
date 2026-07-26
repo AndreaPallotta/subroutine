@@ -16,6 +16,6 @@ export default defineConfig({
     react(),
     tailwind()
   ],
-  site: 'https://andre.gitlab.io',
+  site: 'https://subroutine-cs.cc',
   base: '/',
 });
