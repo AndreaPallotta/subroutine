@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://subroutine-cs.cc/sitemap-index.xml

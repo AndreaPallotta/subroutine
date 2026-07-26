@@ -14,7 +14,7 @@ export default defineConfig({
       rehypePlugins: [rehypeKatex],
     }),
     react(),
-    tailwind()
+    tailwind(),
   ],
   site: 'https://subroutine-cs.cc',
   base: '/',
