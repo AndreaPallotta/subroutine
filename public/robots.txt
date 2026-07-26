@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://subroutine-cs.cc/sitemap-index.xml
+Sitemap: https://subroutine-cs.cc/sitemap.xml
