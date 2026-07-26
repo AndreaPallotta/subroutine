@@ -1,0 +1,60 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+
+const badgeClass = 
+  article.data.level === 'Beginner' ? 'badge-beginner' :
+  article.data.level === 'Intermediate' ? 'badge-intermediate' : 'badge-advanced';
+---
+
+<Layout 
+  title={`${article.data.title} // CodeEdu`} 
+  description={article.data.summary}
+  currentSlug={article.slug}
+>
+  <article class="max-w-4xl mx-auto py-2 md:py-6">
+    {/* Article Header Metadata */}
+    <header class="mb-10 pb-8 border-b border-slate-800">
+      <div class="flex items-center gap-3 mb-4">
+        <a href="/" class="text-xs font-semibold text-slate-400 hover:text-cyan-400 font-mono transition-colors">← Back to Playground</a>
+        <span class="text-slate-700">•</span>
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-wider">{article.data.category}</span>
+        <span class={`badge ${badgeClass}`}>{article.data.level}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-4 leading-tight">
+        {article.data.title}
+      </h1>
+
+      <p class="text-base md:text-xl text-slate-300 leading-relaxed mb-6 font-light">
+        {article.data.summary}
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400 pt-3 border-t border-slate-800/60">
+        <span>Published: {article.data.date.toISOString().split('T')[0]}</span>
+        <span>•</span>
+        <div class="flex gap-2">
+          {article.data.tags.map(tag => (
+            <span class="text-indigo-400 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-500/20">#{tag}</span>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    {/* Rendered MDX Content with Custom CSS Article Hierarchy */}
+    <div class="article-content">
+      <Content />
+    </div>
+  </article>
+</Layout>

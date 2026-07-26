@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import { getCollection } from 'astro:content';
+import { SidebarNavigation, type ArticleNavItem } from '../components/navigation/SidebarNavigation';
+
+interface Props {
+  title?: string;
+  description?: string;
+  currentSlug?: string;
+}
+
+const {
+  title = 'Subroutine // Interactive CS & Programming Playground',
+  description = 'An interactive educational platform for algorithms, low-level systems, C++ optimization, and AI with audio-visual simulations.',
+  currentSlug = '',
+} = Astro.props;
+
+const rawArticles = await getCollection('articles');
+const articles: ArticleNavItem[] = rawArticles.map(art => ({
+  slug: art.slug,
+  title: art.data.title,
+  category: art.data.category,
+  level: art.data.level,
+}));
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <!-- KaTeX CSS for beautiful math typesetting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
+    {/* Left Vertical Sidebar Navigation */}
+    <SidebarNavigation client:load articles={articles} currentSlug={currentSlug} />
+
+    {/* Main Content Area */}
+    <div class="md:pl-72 min-h-screen flex flex-col">
+      <main class="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-6 md:py-10">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

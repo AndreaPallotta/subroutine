@@ -1,0 +1,98 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { SortingVisualizer } from '../components/visualizers/SortingVisualizer';
+
+const allArticles = await getCollection('articles');
+const sortedArticles = allArticles.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const featuredArticle = sortedArticles.find(art => art.data.featured) || sortedArticles[0];
+---
+
+<Layout title="Subroutine // Interactive CS & Programming Playground">
+  {/* Hero Header Section */}
+  <section class="py-10 text-center max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-mono font-semibold mb-6">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      Weekly Interactive Computer Science Blog
+    </div>
+
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
+      Master Programming Concepts <br />
+      <span class="gradient-text">Through Sound & Visual Intuition</span>
+    </h1>
+
+    <p class="text-slate-400 text-base md:text-lg leading-relaxed mb-8">
+      An open educational playground covering algorithms, low-level systems optimization, C++, neural networks, and computer architecture.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold">
+      <a href="#playground" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white shadow-lg shadow-indigo-500/25 transition-all">
+        Try Sorting Visualizer ↓
+      </a>
+      <a href="#articles" class="px-6 py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+        Browse Articles
+      </a>
+    </div>
+  </section>
+
+  {/* Interactive Demo Section */}
+  <section id="playground" class="py-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Featured Playground</h2>
+        <p class="text-xs text-slate-400 font-mono">Live Web Audio API & HTML5 Canvas Simulation</p>
+      </div>
+      <a href={`/articles/${featuredArticle.slug}`} class="text-xs font-semibold text-cyan-400 hover:text-cyan-300">
+        Read Full Article →
+      </a>
+    </div>
+
+    <SortingVisualizer initialAlgorithm="quick" client:visible />
+  </section>
+
+  {/* Article Feed / Weekly Log Section */}
+  <section id="articles" class="py-10">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Educational Articles</h2>
+        <p class="text-xs text-slate-400">Written in MDX with embedded interactive widgets</p>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-500 font-mono">{sortedArticles.length} Topic(s) Available</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {sortedArticles.map((article) => {
+        const badgeClass = 
+          article.data.level === 'Beginner' ? 'badge-beginner' :
+          article.data.level === 'Intermediate' ? 'badge-intermediate' : 'badge-advanced';
+
+        return (
+          <a href={`/articles/${article.slug}`} class="group glass-panel p-6 block flex flex-col justify-between hover:border-indigo-500/40 transition-all">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-xs font-mono text-cyan-400 uppercase tracking-wider">{article.data.category}</span>
+                <span class={`badge ${badgeClass}`}>{article.data.level}</span>
+              </div>
+
+              <h3 class="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors mb-2">
+                {article.data.title}
+              </h3>
+
+              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">
+                {article.data.summary}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-slate-800/60 font-mono">
+              <span>{article.data.date.toISOString().split('T')[0]}</span>
+              <span class="text-indigo-400 group-hover:translate-x-1 transition-transform">Read Article →</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+</Layout>

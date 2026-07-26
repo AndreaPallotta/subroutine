@@ -1,0 +1,62 @@
+---
+title: "Garbage Collection: Mark-and-Sweep & Heap Compaction"
+summary: "How modern language runtimes manage dynamic heap memory, trace root pointer graphs, and reclaim unreferenced object memory."
+category: "Languages"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Garbage Collection", "Memory Management", "Go", "Java", "V8", "Runtimes"]
+featured: true
+---
+
+import { GarbageCollectionVisualizer } from '../../components/visualizers/GarbageCollectionVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Automatic memory management is one of the most critical responsibilities of modern programming language runtimes. Languages like **Go**, **Java (JVM)**, and **JavaScript (V8)** abstract manual `malloc`/`free` calls using automatic **Garbage Collectors (GC)**.
+
+At the heart of tracing garbage collectors lies the classic **Mark-and-Sweep** algorithm.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Tracing Garbage Collection**: The runtime periodically pauses or concurrently scans active thread stack frames (the **Root Set**) to find all reachable heap objects.
+- **Phase 1: Mark Phase**: Traverses pointer references recursively, setting a bit flag (e.g. `isMarked = true`) on all reachable nodes.
+- **Phase 2: Sweep Phase**: Iterates through the raw heap memory blocks. Any object without a mark flag is unreachable garbage and gets deallocated back to the free memory allocator.
+- **Alternative Strategies**: While Go and Java use tracing GCs, languages like **Rust** enforce compile-time ownership without runtime GC, and **C++** uses RAII smart pointers (`std::unique_ptr`, `std::shared_ptr`).
+
+---
+
+## 2. Interactive Garbage Collection Playground
+
+Use the interactive simulation below to test pointer graph tracing. You can sever pointer references between heap objects and click **"Run Mark-and-Sweep GC"** to watch reachable objects turn green while unreferenced orphan objects are swept into free memory!
+
+<Callout type="info" title="Try Severing a Link">
+Click <strong>"Sever O2 → O4 Reference"</strong> and trigger the GC sweep. Watch how Object 4 turns into unreferenced garbage and gets swept out of heap memory!
+</Callout>
+
+<GarbageCollectionVisualizer client:visible />
+
+---
+
+## 3. Comparing Memory Models Across Runtimes
+
+| Language | Primary Memory Strategy | Stop-The-World (STW) Overhead | Memory Safety Model |
+| :--- | :--- | :--- | :--- |
+| **Go** | Concurrent Tri-color Mark-and-Sweep | Sub-millisecond ($<1\text{ms}$) | Automatic Garbage Collector |
+| **Java (JVM)** | Generational ZGC / G1 Collector | Configurable ($<10\text{ms}$) | Automatic Garbage Collector |
+| **Rust** | RAII & Compile-time Ownership | Zero (No GC runtime) | Affine Type System & Borrow Checker |
+| **C++** | Manual / Smart Pointers (`std::unique_ptr`) | Zero (Deterministic destructors) | Manual & RAII destructors |
+| **TypeScript / V8** | Generational Scavenger + Mark-Sweep | Minor idle-phase pauses | Automatic Garbage Collector |
+| **Python** | Reference Counting + Generational GC | Occasional cyclic sweep | Automatic Hybrid Collector |
+
+---
+
+## 4. Deep Dive: Tri-color Marking in Go
+
+Modern production GCs (such as Go's runtime) use **Tri-color Marking** to avoid locking the application during long Stop-The-World pauses:
+
+1. **White Set**: Candidate objects for memory reclamation (unvisited).
+2. **Grey Set**: Objects visited by root scanning whose child pointer targets have not yet been evaluated.
+3. **Black Set**: Reachable objects whose outgoing pointers have all been scanned.
+
+When the mark phase completes, all remaining **White** objects are swept from the heap!

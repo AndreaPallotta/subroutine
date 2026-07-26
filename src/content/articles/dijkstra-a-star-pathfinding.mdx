@@ -1,0 +1,62 @@
+---
+title: "Dijkstra's & A* Pathfinding: Heuristics & Graph Traversal"
+summary: "An interactive exploration of graph search algorithms, comparing Dijkstra's uniform cost search against A* heuristic estimation."
+category: "Algorithms"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Algorithms", "Pathfinding", "A*", "Dijkstra", "Graphs"]
+featured: true
+---
+
+import { PathfindingVisualizer } from '../../components/visualizers/PathfindingVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Pathfinding is central to computer science—powering GPS navigation systems, network packet routing, and video game AI. While **Dijkstra's algorithm** guarantees finding the shortest path by exploring all directions uniformly, the **A* Search algorithm** uses a **heuristic function** to steer exploration directly toward the destination.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Dijkstra's Algorithm**: Evaluates nodes based strictly on path cost from the start:
+  $$f(n) = g(n)$$
+- **$A^*$ Search Algorithm**: Adds an admissible heuristic $h(n)$ estimating remaining distance to the goal:
+  $$f(n) = g(n) + h(n)$$
+- **Manhattan Distance Heuristic**: For grid graphs with 4-directional movement:
+  $$h(n) = |x_1 - x_2| + |y_1 - y_2|$$
+- **Efficiency Boost**: $A^*$ evaluates significantly fewer nodes than Dijkstra while still guaranteeing the shortest optimal path if the heuristic never overestimates the true cost ($h(n) \le h^*(n)$).
+
+---
+
+## 2. Interactive Pathfinding Playground
+
+Use the interactive 2D grid below to place wall barriers. Switch between **$A^*$ Search** and **Dijkstra** to observe how heuristic guidance drastically reduces the number of visited nodes!
+
+<Callout type="tip" title="Interactive Experiment">
+Click on grid cells to toggle wall barriers, then click <strong>Run A* Search</strong> versus <strong>Run Dijkstra</strong>. Notice how $A^*$ steers toward the target (T) instantly!
+</Callout>
+
+<PathfindingVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations
+
+The core score $f(n)$ assigned to each node during priority queue exploration determines traversal order:
+
+### 1. Dijkstra ($f(n) = g(n)$)
+Explores nodes in concentric circles outward from the origin regardless of target location.
+
+### 2. $A^*$ ($f(n) = g(n) + h(n)$)
+Directs exploration toward the goal. For 4-way grid movement, Manhattan distance provides an admissible, consistent heuristic:
+
+$$h(n) = |x_{\text{current}} - x_{\text{target}}| + |y_{\text{current}} - y_{\text{target}}|$$
+
+---
+
+## 4. Algorithm Comparison Matrix
+
+| Algorithm | Evaluation Function | Heuristic Needed? | Explored Nodes | Guarantees Shortest Path? |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dijkstra** | $f(n) = g(n)$ | No | High (Uniform Radiating Search) | Yes |
+| **$A^*$ Search** | $f(n) = g(n) + h(n)$ | Yes (Admissible $h$) | Low (Directed Heuristic Search) | Yes |
+| **Greedy Best-First** | $f(n) = h(n)$ | Yes | Minimal (Ignores past cost $g$) | No |

@@ -1,0 +1,70 @@
+---
+title: "Dynamic Programming: The 0/1 Knapsack Problem"
+summary: "Understand sub-problem optimization, memoization matrices, and pseudo-polynomial time complexity."
+category: "Algorithms"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Algorithms", "Dynamic Programming", "Knapsack", "Optimization"]
+featured: true
+---
+
+import { KnapsackVisualizer } from '../../components/visualizers/KnapsackVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+The **0/1 Knapsack Problem** is a classic combinatorial optimization problem. Given $N$ items, each with a specific weight $w_i$ and value $v_i$, and a knapsack with maximum weight capacity $W$, determine the maximum total value of items that can fit in the knapsack.
+
+Unlike the fractional knapsack problem (which can be solved greedily), 0/1 Knapsack requires **Dynamic Programming (DP)** because items cannot be broken into fractions.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Sub-Problem Recurrence Relation**:
+  $$DP[i][w] = \max\left(DP[i-1][w], \, v_i + DP[i-1][w - w_i]\right)$$
+- **State Definition**: $DP[i][w]$ represents the maximum value achievable considering the first $i$ items with capacity $w$.
+- **Time Complexity**: $O(N \cdot W)$ pseudo-polynomial time (where $N$ is item count and $W$ is capacity).
+- **Space Complexity**: $O(N \cdot W)$ using a full 2D table, or $O(W)$ space using 1D space optimization.
+
+---
+
+## 2. Interactive Knapsack Playground
+
+Use the interactive memoization matrix below to step through sub-problem evaluations cell-by-cell!
+
+<Callout type="tip" title="Dynamic Programming Recurrence">
+Click <strong>Step 1 DP Cell</strong> to watch the matrix evaluate whether including the current item yields higher total value than excluding it!
+</Callout>
+
+<KnapsackVisualizer client:visible />
+
+---
+
+## 3. Formulated Memoization Matrix Solution
+
+For the sample catalog below ($W = 7$):
+- **Gemstone**: Weight $= 2$, Value $=\$3$
+- **Gold Bar**: Weight $= 3$, Value $=\$4$
+- **Artifact**: Weight $= 4$, Value $=\$5$
+- **Crown**: Weight $= 5$, Value $=\$8$
+
+Here is the completed $DP[i][w]$ state matrix:
+
+| Item \ Wt | W=0 | W=1 | W=2 | W=3 | W=4 | W=5 | W=6 | W=7 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **No Items** | $0$ | $0$ | $0$ | $0$ | $0$ | $0$ | $0$ | $0$ |
+| **Gemstone** | $0$ | $0$ | $\$3$ | $\$3$ | $\$3$ | $\$3$ | $\$3$ | $\$3$ |
+| **Gold Bar** | $0$ | $0$ | $\$3$ | $\$4$ | $\$4$ | $\$7$ | $\$7$ | $\$7$ |
+| **Artifact** | $0$ | $0$ | $\$3$ | $\$4$ | $\$5$ | $\$7$ | $\$8$ | $\$9$ |
+| **Crown** | $0$ | $0$ | $\$3$ | $\$4$ | $\$5$ | $\$8$ | $\$8$ | **$\$11$** |
+
+At capacity $W=7$, the optimal combination takes the **Crown** ($W=5, V=\$8$) + **Gemstone** ($W=2, V=\$3$) for a maximum profit of **$\$11$**!
+
+---
+
+## 4. Knapsack Variants Matrix
+
+| Variant | Fractional Split Allowed? | Optimal Strategy | Time Complexity |
+| :--- | :--- | :--- | :--- |
+| **0/1 Knapsack** | ❌ No (Take item whole or leave) | Dynamic Programming | $O(N \cdot W)$ |
+| **Fractional Knapsack** | ✅ Yes (Take fractions of items) | Greedy Algorithm (Value/Weight ratio) | $O(N \log N)$ |
+| **Unbounded Knapsack** | ❌ No (Unlimited duplicate items) | Dynamic Programming (1D array) | $O(N \cdot W)$ |

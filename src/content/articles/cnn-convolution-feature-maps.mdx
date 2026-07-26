@@ -1,0 +1,62 @@
+---
+title: "CNN 2D Image Filters & Convolution Feature Maps"
+summary: "An interactive computer vision exploration of sliding 2D kernel matrices, Sobel edge detectors, and convolutional feature map generation."
+category: "AI & ML"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["AI & ML", "Deep Learning", "CNN", "Computer Vision", "Convolution"]
+featured: true
+---
+
+import { ConvolutionVisualizer } from '../../components/visualizers/ConvolutionVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+**Convolutional Neural Networks (CNNs)** form the foundation of modern computer vision. Unlike fully connected neural networks that evaluate flat 1D vectors, CNNs preserve spatial 2D relationships in images by sliding small weight matrices (**kernels**) across raw pixels to extract abstract visual features like edges, textures, and shapes.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **2D Discrete Convolution**: Computes the dot product between a $K \times K$ kernel and localized pixel regions:
+  $$S(i, j) = (I * K)(i, j) = \sum_{m} \sum_{n} I(i + m, j + n) \cdot K(m, n)$$
+- **Sobel Edge Detection Filters**: Highlights high-frequency spatial intensity gradients corresponding to object borders.
+- **Feature Map Dimensions**: For an input of size $N \times N$, kernel size $K$, stride $S$, and padding $P$:
+  $$\text{Output Size} = \left\lfloor \frac{N - K + 2P}{S} \right\rfloor + 1$$
+- **Translation Invariance**: Convolution filters recognize visual patterns regardless of where they appear in the frame.
+
+---
+
+## 2. Interactive 2D Convolution Playground
+
+Use the interactive visualizer below to slide a $3 \times 3$ **Sobel Edge** or **Sharpen** filter kernel across a $6 \times 6$ pixel grid and build the resulting $4 \times 4$ feature map!
+
+<Callout type="tip" title="Sliding Window Filter">
+Click <strong>Slide 3x3 Kernel 1 Step</strong> to watch elementwise multiplication sum values get written into the destination output feature map.
+</Callout>
+
+<ConvolutionVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations & Sobel Edge Kernels
+
+### 1. Sobel Horizontal Edge Filter ($K_x$)
+Detects horizontal pixel intensity transitions:
+$$K_x = \begin{pmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{pmatrix}$$
+
+### 2. Sobel Vertical Edge Filter ($K_y$)
+Detects vertical pixel intensity transitions:
+$$K_y = \begin{pmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{pmatrix}$$
+
+### Combined Edge Magnitude ($G$)
+$$G = \sqrt{G_x^2 + G_y^2}$$
+
+---
+
+## 4. CNN Architecture Layer Comparison
+
+| Layer Type | Purpose | Primary Operation | Output Dimension Change |
+| :--- | :--- | :--- | :--- |
+| **Convolutional Layer** | Feature Extraction | Sliding Kernel Dot Product | Reduces by $K - 1$ (if $P=0$) |
+| **Pooling Layer (MaxPool)** | Spatial Downsampling | Max/Average Window Pooling | Cuts dimensions in half ($N/2$) |
+| **Fully Connected (Dense)** | Final Classification | Matrix Multiplication + Softmax | Flattens into class logits |

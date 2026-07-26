@@ -1,0 +1,64 @@
+---
+title: "Numerical Integration: Verlet vs. Euler Physics Simulation"
+summary: "An interactive physics exploration comparing explicit Euler numerical integration against energy-conserving Verlet position integration."
+category: "Physics & Math"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Physics & Math", "Physics Engine", "Numerical Integration", "Verlet", "Simulation"]
+featured: true
+---
+
+import { VerletPhysicsVisualizer } from '../../components/visualizers/VerletPhysicsVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+When building physics engines for video games, graphics simulations, or astronomical modeling, computer hardware cannot continuously integrate physical differential equations. Instead, physics engines approximate motion using **numerical integration** over discrete time steps $\Delta t$.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Explicit Euler Method**: Updates position using current velocity:
+  $$x_{t+\Delta t} = x_t + v_t \Delta t, \quad v_{t+\Delta t} = v_t + a_t \Delta t$$
+  - **Flaw**: Accumulates truncation error over time, causing physical systems to artificially gain energy and explode!
+- **Verlet Integration**: Evaluates position from current $x_t$ and previous $x_{t-\Delta t}$ frame positions:
+  $$x_{t+\Delta t} = 2x_t - x_{t-\Delta t} + a_t \Delta t^2$$
+  - **Advantage**: **Symplectic & time-reversible**, accurately conserving total mechanical energy (Potential + Kinetic).
+
+---
+
+## 2. Interactive Physics Simulator
+
+Use the interactive pendulum engine below to toggle between **Explicit Euler** and **Verlet Integration**!
+
+<Callout type="warning" title="Energy Explosion Warning">
+Select <strong>Explicit Euler (Unstable)</strong> and watch the mechanical energy meter explode over time! Then switch to <strong>Verlet Integration (Stable)</strong> to observe smooth, energy-conserving pendulum swings.
+</Callout>
+
+<VerletPhysicsVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations
+
+Verlet integration is derived directly by adding the forward and backward Taylor expansions of position $x(t)$:
+
+### Forward Taylor Series ($t + \Delta t$)
+$$x(t + \Delta t) = x(t) + v(t)\Delta t + \frac{1}{2}a(t)\Delta t^2 + \frac{1}{6}b(t)\Delta t^3 + \mathcal{O}(\Delta t^4)$$
+
+### Backward Taylor Series ($t - \Delta t$)
+$$x(t - \Delta t) = x(t) - v(t)\Delta t + \frac{1}{2}a(t)\Delta t^2 - \frac{1}{6}b(t)\Delta t^3 + \mathcal{O}(\Delta t^4)$$
+
+### Adding Both Equations (Eliminates Velocity & Odd Terms!)
+$$x(t + \Delta t) = 2x(t) - x(t - \Delta t) + a(t)\Delta t^2 + \mathcal{O}(\Delta t^4)$$
+
+Because the $\mathcal{O}(\Delta t^3)$ term cancels out, Verlet integration achieves **4th-order local accuracy** without calculating velocity vectors directly!
+
+---
+
+## 4. Integration Method Comparison Matrix
+
+| Method | Order of Accuracy | Symplectic (Conserves Energy)? | Best Use Case |
+| :--- | :--- | :--- | :--- |
+| **Explicit Euler** | $1^{\text{st}}$ Order ($\mathcal{O}(\Delta t)$) | No (Gains Energy) | Basic UI animations |
+| **Verlet Integration** | $2^{\text{nd}}$ Order ($\mathcal{O}(\Delta t^2)$) | **Yes** | Molecular dynamics, cloth & ragdoll physics |
+| **Runge-Kutta 4 (RK4)**| $4^{\text{th}}$ Order ($\mathcal{O}(\Delta t^4)$) | No (High Precision) | Orbital mechanics & aerospace trajectories |

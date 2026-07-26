@@ -1,0 +1,66 @@
+---
+title: "Qubits, Superposition & The Bloch Sphere"
+summary: "An interactive quantum physics exploration of quantum bits, Hadamard gates, superposition states, and probabilistic wave function collapse."
+category: "Physics & Math"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Physics & Math", "Quantum Computing", "Qubits", "Quantum Mechanics"]
+featured: true
+---
+
+import { BlochSphereVisualizer } from '../../components/visualizers/BlochSphereVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Whereas classical computer bits exist in a deterministic state of either $0$ or $1$, quantum computing leverages the laws of quantum mechanics. A **Qubit (Quantum Bit)** can exist in a linear combination of both states simultaneously—a phenomenon known as **Quantum Superposition**.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Quantum Superposition**: A single qubit state $|\psi\rangle$ is represented mathematically as:
+  $$|\psi\rangle = \alpha |0\rangle + \beta |1\rangle$$
+  where $\alpha$ and $\beta$ are complex probability amplitudes satisfying $|\alpha|^2 + |\beta|^2 = 1$.
+- **Hadamard Gate ($H$)**: Transforms ground state $|0\rangle$ into equal superposition $\frac{|0\rangle + |1\rangle}{\sqrt{2}}$, granting a $50\%$ chance of measuring either $0$ or $1$.
+- **Measurement Collapse**: Observing a qubit forces its wave function to collapse probabilistically into a single classical state ($|0\rangle$ or $|1\rangle$).
+- **The Bloch Sphere**: A geometric representation of single-qubit quantum states as points on the surface of a unit sphere.
+
+---
+
+## 2. Interactive Bloch Sphere Playground
+
+Use the interactive Bloch Sphere below to apply **Hadamard ($H$)**, **Pauli-X (Bit Flip)**, and **Pauli-Z (Phase)** quantum gates to a single qubit state $|\psi\rangle$, then run **Quantum Measurement** to collapse the state!
+
+<Callout type="tip" title="Quantum Superposition Experiment">
+Click <strong>Hadamard (H)</strong> to place the qubit in an equal $50\% / 50\%$ superposition state. Then click <strong>Measure Qubit</strong> multiple times to observe probabilistic collapse into $|0\rangle$ or $|1\rangle$!
+</Callout>
+
+<BlochSphereVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations & Quantum Logic Gates
+
+Single-qubit quantum gates are represented as $2 \times 2$ unitary matrices $U$ acting on state vectors:
+
+### Hadamard Gate ($H$)
+Places ground states into equal superposition:
+$$H = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}, \quad H|0\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}}$$
+
+### Pauli-X Gate (Bit Flip)
+Acts as the quantum equivalent of a classical NOT gate:
+$$X = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}, \quad X|0\rangle = |1\rangle, \quad X|1\rangle = |0\rangle$$
+
+### Pauli-Z Gate (Phase Flip)
+Flips the quantum phase angle $\phi$ without altering measurement probabilities:
+$$Z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}, \quad Z\left(\frac{|0\rangle + |1\rangle}{\sqrt{2}}\right) = \frac{|0\rangle - |1\rangle}{\sqrt{2}}$$
+
+---
+
+## 4. Quantum Computing vs Classical Computing Matrix
+
+| Property | Classical Computing | Quantum Computing |
+| :--- | :--- | :--- |
+| **Information Unit** | Bit ($0$ or $1$) | Qubit ($|\psi\rangle = \alpha |0\rangle + \beta |1\rangle$) |
+| **State Space ($N$ units)** | $1$ state out of $2^N$ | All $2^N$ states in superposition simultaneously |
+| **Logic Operations** | Boolean Gates (AND, OR, NOT) | Unitary Quantum Matrix Gates ($H$, $X$, $CNOT$) |
+| **Search Complexity** | $O(N)$ Unsorted Search | $O(\sqrt{N})$ Grover's Quantum Search |

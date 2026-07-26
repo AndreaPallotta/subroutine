@@ -1,0 +1,65 @@
+---
+title: "Visualizing & Hearing Sorting Algorithms"
+summary: "An interactive exploration of fundamental sorting algorithms enhanced with real-time Web Audio sound synthesis and live code inspection."
+category: "Algorithms"
+level: "Beginner"
+date: 2026-07-26
+tags: ["Algorithms", "Sorting", "Web Audio API", "Interactive"]
+featured: true
+---
+
+import { SortingVisualizer } from '../../components/visualizers/SortingVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Sorting is one of the most fundamental concepts in computer science. When learning algorithms, seeing array elements move is helpful—but **hearing the scalar pitch of each element** creates a powerful physical intuition for algorithm efficiency.
+
+As elements are compared and swapped, their values map directly to audio frequencies using the **Web Audio API** (`AudioContext`).
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Divide & Conquer Efficiency**: Algorithms running in $O(N \log N)$ time (like Quick Sort, Merge Sort, and Heap Sort) scale dramatically better than $O(N^2)$ algorithms (like Bubble Sort or Selection Sort) as array size $N$ increases.
+- **Auditory Signatures**: $O(N^2)$ algorithms generate repetitive high-frequency sweeps due to rescanning, whereas $O(N \log N)$ algorithms produce rapid, cascading pitch jumps.
+- **Memory Footprint**: In-place algorithms like Quick Sort and Heap Sort use minimal $O(1)$ or $O(\log N)$ auxiliary space, while Merge Sort requires $O(N)$ extra memory allocation.
+
+---
+
+## 2. Interactive Sorting Playground
+
+Use the playground below to test **Quick Sort**, **Merge Sort**, **Heap Sort**, **Bubble Sort**, **Selection Sort**, and **Insertion Sort**.
+
+<Callout type="tip" title="Interactive Feature">
+The <strong>Implementation Code</strong> box at the bottom of the visualizer updates dynamically in C++ or Python whenever you switch algorithms!
+</Callout>
+
+<SortingVisualizer initialAlgorithm="quick" client:visible />
+
+---
+
+## 3. How Sound Synthesis Reveals Algorithm Complexity
+
+When listening to sorting algorithms in action, the sound profile reveals micro-architectural differences:
+
+### $O(N^2)$ Quadratic Algorithms *(Bubble, Selection, Insertion)*
+- **Audio Profile**: Continuous, high-pitched repetitive sweeps.
+- **Why**: The CPU executes nested loops, repeatedly scanning the array $N$ times. You can physically hear the sound engine re-scanning elements that were already partially evaluated.
+
+### $O(N \log N)$ Logarithmic Algorithms *(Quick, Merge, Heap)*
+- **Audio Profile**: Rapid, cascading pitch jumps across octave boundaries.
+- **Why**: **Quick Sort** sounds like energetic binary partitioning around a pivot value, while **Heap Sort** produces a distinct tree-climbing cadence as root elements settle into the max-heap hierarchy.
+
+---
+
+## 4. Theoretical Complexity Comparison
+
+Below is the formal asymptotic complexity matrix for each algorithm:
+
+| Algorithm | Best Case | Average Case | Worst Case | Space Complexity | Stable? |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Quick Sort** | $O(N \log N)$ | $O(N \log N)$ | $O(N^2)$ | $O(\log N)$ | No |
+| **Merge Sort** | $O(N \log N)$ | $O(N \log N)$ | $O(N \log N)$ | $O(N)$ | Yes |
+| **Heap Sort** | $O(N \log N)$ | $O(N \log N)$ | $O(N \log N)$ | $O(1)$ | No |
+| **Insertion Sort** | $O(N)$ | $O(N^2)$ | $O(N^2)$ | $O(1)$ | Yes |
+| **Selection Sort** | $O(N^2)$ | $O(N^2)$ | $O(N^2)$ | $O(1)$ | No |
+| **Bubble Sort** | $O(N)$ | $O(N^2)$ | $O(N^2)$ | $O(1)$ | Yes |

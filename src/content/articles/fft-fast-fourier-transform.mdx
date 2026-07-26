@@ -1,0 +1,64 @@
+---
+title: "Interactive Fast Fourier Transform (FFT) & Signal Processing"
+summary: "An interactive mathematical exploration of 1D signal frequency decomposition, Cooley-Tukey O(N log N) FFT, and spectrum analysis."
+category: "Physics & Math"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Physics & Math", "Fourier Transform", "FFT", "Signal Processing", "Mathematics"]
+featured: true
+---
+
+import { FFTVisualizer } from '../../components/visualizers/FFTVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+The **Fast Fourier Transform (FFT)** is widely regarded as one of the most important algorithms of the 20th century. It decomposes time-domain wave signals (such as audio, radio frequencies, or image textures) into their constituent frequency spectrum components.
+
+While naive Discrete Fourier Transform (DFT) requires $O(N^2)$ complex multiplications, the **Cooley-Tukey FFT algorithm** uses divide-and-conquer to compute the exact spectrum in $O(N \log N)$ time.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Continuous Fourier Transform**: Translates continuous time-domain function $f(t)$ to frequency spectrum $\hat{f}(\xi)$:
+  $$\hat{f}(\xi) = \int_{-\infty}^{\infty} f(t) \, e^{-2\pi i \xi t} \, dt$$
+- **Cooley-Tukey Radix-2 FFT**: Splits a size-$N$ DFT into two sub-problems of size $N/2$ (even and odd indexed samples):
+  $$X_k = E_k + e^{-\frac{2\pi i}{N} k} O_k$$
+- **Time Complexity Speedup**: Reduces computational steps from $O(N^2)$ down to $O(N \log N)$, enabling real-time audio processing and digital communications (5G, Wi-Fi, MP3/JPEG compression).
+
+---
+
+## 2. Interactive FFT Signal Decomposition
+
+Use the interactive spectrum analyzer below to adjust the frequencies of two combined sine waves, then view the resulting **Time-Domain Waveform** and **Frequency-Domain FFT Spectrum**!
+
+<Callout type="tip" title="Frequency Decomposition">
+Adjust the <strong>Sine Wave 1</strong> and <strong>Sine Wave 2</strong> sliders. Watch the lower FFT spectrum graph isolate the two distinct frequency magnitude peaks!
+</Callout>
+
+<FFTVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations: Cooley-Tukey Divide-and-Conquer
+
+For discrete sequence $x_0, x_1, \dots, x_{N-1}$, the Discrete Fourier Transform is:
+
+$$X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-\frac{2\pi i}{N} n k}$$
+
+By separating into even ($n = 2m$) and odd ($n = 2m + 1$) terms:
+
+$$X_k = \sum_{m=0}^{N/2-1} x_{2m} \cdot e^{-\frac{2\pi i}{N/2} m k} + e^{-\frac{2\pi i}{N} k} \sum_{m=0}^{N/2-1} x_{2m+1} \cdot e^{-\frac{2\pi i}{N/2} m k}$$
+
+$$X_k = \text{DFT}_{N/2}[x_{\text{even}}]_k + W_N^k \cdot \text{DFT}_{N/2}[x_{\text{odd}}]_k$$
+
+where $W_N^k = e^{-\frac{2\pi i}{N} k}$ is the **twiddle factor**!
+
+---
+
+## 4. DFT vs. FFT Performance Comparison
+
+| Property | Naive DFT | Cooley-Tukey FFT |
+| :--- | :--- | :--- |
+| **Time Complexity** | $O(N^2)$ | $O(N \log N)$ |
+| **Steps for $N = 1,048,576$ ($2^{20}$)** | $\sim 1.1 \times 10^{12}$ operations | $\sim 2.0 \times 10^{7}$ operations ($50,000\times$ faster!) |
+| **Real-Time Feasibility** | ❌ Too slow for live audio/telecom | ✅ Real-time 4K audio, 5G, & JPEG |

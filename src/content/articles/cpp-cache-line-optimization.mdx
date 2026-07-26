@@ -1,0 +1,72 @@
+---
+title: "C++ Memory Locality & CPU Cache Line Alignment"
+summary: "Why memory access patterns dictate performance far more than raw instruction counts in high-frequency C++ code."
+category: "Systems"
+level: "Advanced"
+date: 2026-07-26
+tags: ["C++", "Performance", "Hardware", "Systems"]
+featured: false
+---
+
+import { Callout } from '../../components/ui/Callout';
+
+# C++ Memory Locality & CPU Cache Line Alignment
+
+When optimizing low-latency C++ applications (such as game engines, high-frequency trading platforms, or database storage engines), hardware microarchitecture dictates performance far more than arithmetic operation count.
+
+Modern x86_64 CPUs do not fetch single bytes from RAM—they load contiguous **64-byte Cache Lines** into L1/L2 caches.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Cache Line Granularity**: Memory is transferred between main RAM and CPU caches in fixed 64-byte blocks.
+- **Row-Major vs. Column-Major**: Traversing memory sequentially maximizes L1 cache line hits ($O(1)$ amortized cost per fetch), whereas stride-based traversal triggers constant L1 cache misses.
+- **False Sharing**: Multiple threads modifying distinct variables on the exact same 64-byte cache line cause cache invalidation ping-ponging across CPU cores. Use `alignas(64)` to mitigate.
+
+---
+
+## 2. Memory Stride: Row-Major vs. Column-Major
+
+Consider iterating over a $4096 \times 4096$ integer matrix:
+
+### Row-Major Access (Sequential / Cache-Friendly)
+```cpp
+// Contiguous memory reads -> Maximum L1 Cache Hit Rate
+for (int i = 0; i < N; ++i) {
+    for (int j = 0; j < N; ++j) {
+        sum += matrix[i][j]; 
+    }
+}
+```
+
+### Column-Major Access (Strided / Cache Thrashing)
+```cpp
+// Non-contiguous memory reads -> Constant L1 Cache Misses
+for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < N; ++i) {
+        sum += matrix[i][j];
+    }
+}
+```
+
+<Callout type="warning" title="Performance Penalty">
+Column-major iteration can be <strong>10× to 20× slower</strong> despite executing the exact same number of assembly instructions, purely due to CPU bus stall cycles waiting for main memory!
+</Callout>
+
+---
+
+## 3. False Sharing & `alignas(64)` Optimization
+
+In multi-threaded C++11 code, two threads writing to adjacent variables in memory can degrade performance if both variables reside on the same cache line:
+
+```cpp
+// Struct padded and aligned to 64-byte cache line boundaries
+struct alignas(64) WorkerThreadMetrics {
+    uint64_t processed_items;
+    uint64_t error_count;
+    // Guaranteed to occupy its own isolated 64-byte cache line
+};
+```
+
+Using `alignas(64)` guarantees that modifications by Thread 0 will never invalidate the L1 cache line of Thread 1 on a neighboring core!

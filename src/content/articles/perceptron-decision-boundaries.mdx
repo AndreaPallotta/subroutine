@@ -1,0 +1,54 @@
+---
+title: "Visualizing Perceptrons & Decision Boundaries"
+summary: "Understand the fundamental building block of artificial neural networks through interactive 2D decision boundary classification."
+category: "AI & ML"
+level: "Beginner"
+date: 2026-07-26
+tags: ["AI & ML", "Neural Networks", "Perceptron", "Classification"]
+featured: true
+---
+
+import { PerceptronVisualizer } from '../../components/visualizers/PerceptronVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Artificial Intelligence and modern Deep Learning rest upon a humble atomic building block: **the Perceptron**. Invented by Frank Rosenblatt in 1958, a Single-Layer Perceptron learns a linear hyperplane that separates two distinct classes of data.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **The Linear Equation**: A Perceptron calculates a weighted sum of its inputs plus a bias term:
+  $$z = w_1 x_1 + w_2 x_2 + b$$
+- **Step Activation Function**: If $z \ge 0$, the output is $+1$ (Cyan Class); otherwise, the output is $-1$ (Pink Class).
+- **Linear Separability**: Single-layer perceptrons can only classify datasets that are **linearly separable** (meaning a single straight line can divide the classes).
+- **Perceptron Learning Rule**: Weight updates occur only when a misclassification occurs:
+  $$w_i \leftarrow w_i + \eta \cdot (y - \hat{y}) \cdot x_i$$
+  $$b \leftarrow b + \eta \cdot (y - \hat{y})$$
+
+---
+
+## 2. Interactive Perceptron Playground
+
+Use the interactive 2D plane below to add data points (Class A vs Class B), adjust weights manually with the sliders, or click **"Train 1 Epoch"** to watch the perceptron learn the optimal decision boundary line!
+
+<Callout type="tip" title="Interactive Experiment">
+Click anywhere on the 2D black canvas grid to drop new custom data points. Watch how training adjusts the decision line's slope and position!
+</Callout>
+
+<PerceptronVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations
+
+The Perceptron computes a linear decision boundary separating two classes in 2D space:
+
+$$w_1 x_1 + w_2 x_2 + b = 0 \implies x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2}$$
+
+Where:
+- $w_1$ dictates the slope along the $x_1$ axis.
+- $w_2$ dictates the slope along the $x_2$ axis.
+- $b$ (bias) shifts the boundary line away from the origin $(0,0)$.
+- $\eta$ (learning rate) controls the magnitude of weight updates per epoch step.
+
+If a dataset is not linearly separable (for example, the XOR problem), a single-layer perceptron will fail to reach $100\%$ accuracy—which led to the development of Multi-Layer Perceptrons (MLPs) and Backpropagation!

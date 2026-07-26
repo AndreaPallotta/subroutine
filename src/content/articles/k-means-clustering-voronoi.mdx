@@ -1,0 +1,59 @@
+---
+title: "K-Means Clustering & Voronoi Space Partitioning"
+summary: "An interactive exploration of unsupervised machine learning, Expectation-Maximization (EM) iterations, and cluster boundary optimization."
+category: "AI & ML"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["AI & ML", "Machine Learning", "Clustering", "K-Means", "Unsupervised"]
+featured: true
+---
+
+import { KMeansVisualizer } from '../../components/visualizers/KMeansVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+Unsupervised machine learning algorithms find hidden patterns in unlabeled datasets. **K-Means Clustering** is one of the most popular clustering algorithms, partitioning $N$ observations into $K$ distinct clusters by minimizing the sum of squared distances between data points and their assigned cluster centroids.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Expectation-Maximization (EM)**: K-Means iterates between two alternating steps:
+  1. **E-Step (Assignment)**: Assign each data point $x_i$ to the nearest centroid $\mu_k$.
+  2. **M-Step (Update)**: Recalculate each centroid position $\mu_k$ as the mean of all assigned points.
+- **Objective Function (Inertia)**: Minimizes within-cluster sum-of-squares (WCSS):
+  $$J = \sum_{k=1}^{K} \sum_{x \in S_k} \| x - \mu_k \|^2$$
+- **Voronoi Tessellation**: The resulting cluster boundaries partition feature space into convex Voronoi cells.
+
+---
+
+## 2. Interactive K-Means Playground
+
+Use the interactive 2D cluster simulator below to step through Expectation-Maximization iterations and watch centroid crosshairs adjust to point clusters!
+
+<Callout type="tip" title="Clustering Convergence">
+Click <strong>Step 1 Iteration</strong> repeatedly. Notice how centroids move rapidly during early iterations and quickly converge to stable cluster centers!
+</Callout>
+
+<KMeansVisualizer client:visible />
+
+---
+
+## 3. Mathematical Foundations
+
+Given a set of $N$ data points $(x_1, x_2, \dots, x_N) \in \mathbb{R}^d$, K-Means partitions them into $K$ sets $S = \{S_1, S_2, \dots, S_K\}$:
+
+### Euclidean Distance Metric
+$$d(x, \mu_k) = \sqrt{\sum_{j=1}^{d} (x_j - \mu_{k,j})^2}$$
+
+### Centroid Update Rule
+$$\mu_k^{(t+1)} = \frac{1}{|S_k^{(t)}|} \sum_{x_i \in S_k^{(t)}} x_i$$
+
+---
+
+## 4. Clustering Algorithm Comparison
+
+| Algorithm | Type | Complexity | Handles Non-Convex Shapes? |
+| :--- | :--- | :--- | :--- |
+| **K-Means** | Centroid-based | $O(N \cdot K \cdot I \cdot d)$ | No (Prefers spherical clusters) |
+| **DBSCAN** | Density-based | $O(N \log N)$ | Yes (Arbitrary cluster shapes) |
+| **Hierarchical** | Tree-based | $O(N^3)$ | Yes (Dendrogram hierarchy) |

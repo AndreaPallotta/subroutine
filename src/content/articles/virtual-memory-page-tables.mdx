@@ -1,0 +1,54 @@
+---
+title: "Virtual Memory & Page Table Translation"
+summary: "An interactive computer systems exploration of MMU hardware, Translation Lookaside Buffer (TLB) hits, and multi-level page table walks."
+category: "Systems"
+level: "Intermediate"
+date: 2026-07-26
+tags: ["Systems", "Virtual Memory", "MMU", "TLB", "OS Architecture"]
+featured: true
+---
+
+import { VirtualMemoryVisualizer } from '../../components/visualizers/VirtualMemoryVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+**Virtual Memory** is one of the most fundamental abstractions in modern operating systems. It provides every process with the illusion of possessing a large, contiguous private address space—protecting application memory while hardware Memory Management Units (MMUs) map virtual pages to physical RAM frames.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **Virtual-to-Physical Address Translation**: The CPU Memory Management Unit (MMU) splits virtual addresses into a **Virtual Page Number (VPN)** and a **Page Offset**.
+- **Translation Lookaside Buffer (TLB)**: An ultra-fast hardware cache on the CPU die storing recent page translations.
+  - **TLB Hit**: Translation found in 0 extra memory cycles!
+  - **TLB Miss**: Requires a 4-level page table walk through RAM (~50–100 cycles).
+- **Page Fault**: Occurs when a virtual address references a page not currently resident in physical RAM, forcing the OS kernel to read the page from disk swap space.
+
+---
+
+## 2. Interactive Page Table Translation Playground
+
+Use the interactive MMU hardware visualizer below to test **TLB Hits**, **TLB Misses**, and **Page Faults**!
+
+<Callout type="tip" title="MMU Hardware Fast Path">
+Click <strong>Simulate TLB Hit</strong> to observe the fast-path translation. Then click <strong>Simulate Page Fault</strong> to see the kernel disk swap fallback!
+</Callout>
+
+<VirtualMemoryVisualizer client:visible />
+
+---
+
+## 3. x86_64 4-Level Page Table Translation
+
+Modern 64-bit CPUs use 4-level page tables to map 48-bit virtual addresses to physical RAM frames:
+
+$$\text{Virtual Address (48 bits)} \implies \text{PML4 (9 bits)} \to \text{PDPT (9 bits)} \to \text{PD (9 bits)} \to \text{PT (9 bits)} + \text{Offset (12 bits)}$$
+
+---
+
+## 4. Memory Lookup Latency Matrix
+
+| Lookup Path | Memory Access Location | Typical Latency | OS Overhead |
+| :--- | :--- | :--- | :--- |
+| **TLB Hit** | CPU On-Die L1 Cache | $<1 \text{ ns}$ (0 extra RAM reads) | None (Pure Hardware) |
+| **TLB Miss** | Multi-level Page Table in RAM | $\sim 10-50 \text{ ns}$ (4 RAM reads) | MMU Hardware Walk |
+| **Page Fault** | NVMe SSD / Hard Disk Swap | $\sim 10-100 \mu\text{s}$ ($100,000\times$ slower!) | Kernel OS Context Switch |
