@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, Play, RefreshCw, BarChart2 } from 'lucide-react';
+import { Activity, BarChart2 } from 'lucide-react';
 import { audioEngine } from './audio/AudioEngine';
 
 type ComplexityType = 'O(1)' | 'O(log N)' | 'O(N)' | 'O(N log N)' | 'O(N^2)';
@@ -7,63 +7,80 @@ type ComplexityType = 'O(1)' | 'O(log N)' | 'O(N)' | 'O(N log N)' | 'O(N^2)';
 export const BigOComplexityVisualizer: React.FC = () => {
   const [nSize, setNSize] = useState(100);
   const [selectedComplexity, setSelectedComplexity] = useState<ComplexityType>('O(N log N)');
-  const [operationsCount, setOperationsCount] = useState(664); // 100 * log2(100) = 664
-  const [spaceKB, setSpaceKB] = useState(0.8);
 
-  const complexities: Record<ComplexityType, { name: string; formula: (n: number) => number; space: (n: number) => number; desc: string; example: string }> = {
+  const complexities: Record<ComplexityType, { 
+    name: string; 
+    formulaOps: (n: number) => number; 
+    formulaBytes: (n: number) => number; 
+    desc: string; 
+    example: string;
+    opsFormulaText: string;
+    spaceFormulaText: string;
+  }> = {
     'O(1)': {
-      name: 'Constant Time O(1)',
-      formula: () => 1,
-      space: () => 0.1,
-      desc: 'Execution time remains identical regardless of input size N. Instant hash map lookup or array index retrieval.',
+      name: 'Constant Complexity O(1)',
+      formulaOps: () => 1,
+      formulaBytes: () => 64, // Fixed stack frame allocation (64 bytes for local variables & register saves)
+      opsFormulaText: '1 primitive operation',
+      spaceFormulaText: 'Fixed 64 B (Single stack frame)',
+      desc: 'Execution time and auxiliary memory stay identical regardless of input size N. Direct array index retrieval or hash map bucket lookup.',
       example: 'return array[0] or hashMap.get("key")'
     },
     'O(log N)': {
-      name: 'Logarithmic Time O(log N)',
-      formula: (n) => Math.round(Math.log2(Math.max(1, n))),
-      space: (n) => Math.round(Math.log2(Math.max(1, n)) * 0.05 * 10) / 10,
-      desc: 'Halves the search space on each step. Binary Search over a sorted array.',
-      example: 'Binary Search, B-Tree lookups'
+      name: 'Logarithmic Complexity O(log N)',
+      formulaOps: (n) => Math.ceil(Math.log2(Math.max(1, n))),
+      formulaBytes: (n) => Math.ceil(Math.log2(Math.max(1, n))) * 64, // Recursion stack depth of log2(N) frames * 64 bytes
+      opsFormulaText: 'ceil(log2(N)) comparison steps',
+      spaceFormulaText: 'log2(N) recursion frames * 64 B',
+      desc: 'Halves the search space on each step. Requires log2(N) comparisons and recursive call stack frames.',
+      example: 'Binary Search over sorted array, B-Tree lookups'
     },
     'O(N)': {
-      name: 'Linear Time O(N)',
-      formula: (n) => n,
-      space: (n) => Math.round((n * 0.008) * 10) / 10,
-      desc: 'Execution time scales proportionally with input size N. Single loop iteration over array items.',
-      example: 'Linear search, array traversal'
+      name: 'Linear Complexity O(N)',
+      formulaOps: (n) => n,
+      formulaBytes: (n) => n * 8, // N 64-bit (8-byte) integers or pointers allocated in auxiliary memory
+      opsFormulaText: 'N loop iterations',
+      spaceFormulaText: 'N elements * 8 Bytes (64-bit integers)',
+      desc: 'Execution time and memory scale linearly with input size N. Single loop traversal or copy of an N-element array.',
+      example: 'Linear search, copying an array'
     },
     'O(N log N)': {
-      name: 'Linearithmic Time O(N log N)',
-      formula: (n) => Math.round(n * Math.log2(Math.max(1, n))),
-      space: (n) => Math.round((n * 0.016) * 10) / 10,
-      desc: 'Optimal comparison-based sorting complexity. Divide and conquer algorithms.',
+      name: 'Linearithmic Complexity O(N log N)',
+      formulaOps: (n) => Math.round(n * Math.log2(Math.max(1, n))),
+      formulaBytes: (n) => n * 8 + Math.ceil(Math.log2(Math.max(1, n))) * 64, // MergeSort auxiliary buffer (8N bytes) + recursion stack
+      opsFormulaText: 'N * log2(N) comparison steps',
+      spaceFormulaText: 'Auxiliary buffer (8N B) + Recursion stack',
+      desc: 'The optimal theoretical bound for comparison-based sorting. Divides input into log2(N) levels, processing N items per level.',
       example: 'Merge Sort, Quick Sort, Heap Sort'
     },
     'O(N^2)': {
-      name: 'Quadratic Time O(N^2)',
-      formula: (n) => n * n,
-      space: (n) => Math.round((n * n * 0.004) * 10) / 10,
-      desc: 'Nested loops traversing N items N times. Performance degrades rapidly for large N.',
-      example: 'Bubble Sort, Selection Sort, All-Pairs Comparisons'
+      name: 'Quadratic Complexity O(N^2)',
+      formulaOps: (n) => n * n,
+      formulaBytes: (n) => n * n * 8, // N x N matrix of 64-bit (8-byte) values
+      opsFormulaText: 'N^2 nested loop operations',
+      spaceFormulaText: 'N^2 matrix elements * 8 Bytes',
+      desc: 'Nested loops traversing N elements N times. Step count and 2D matrix memory explode quadratically as N grows.',
+      example: 'Bubble Sort, All-Pairs Shortest Path, Adjacency Matrix'
     }
   };
 
+  const currentOps = complexities[selectedComplexity].formulaOps(nSize);
+  const currentBytes = complexities[selectedComplexity].formulaBytes(nSize);
+
   const handleSliderChange = (newN: number) => {
     setNSize(newN);
-    const ops = complexities[selectedComplexity].formula(newN);
-    const sp = complexities[selectedComplexity].space(newN);
-    setOperationsCount(ops);
-    setSpaceKB(sp);
     audioEngine.playNote(250 + (newN % 10) * 20, 'sine', 0.05, 0.03);
   };
 
   const handleComplexitySelect = (type: ComplexityType) => {
     setSelectedComplexity(type);
-    const ops = complexities[type].formula(nSize);
-    const sp = complexities[type].space(nSize);
-    setOperationsCount(ops);
-    setSpaceKB(sp);
     audioEngine.playNote(400, 'triangle', 0.1, 0.05);
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} Bytes`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
   return (
@@ -77,7 +94,7 @@ export const BigOComplexityVisualizer: React.FC = () => {
             <span>Big O Algorithmic Complexity Analyzer</span>
           </h3>
           <p className="text-xs font-mono text-slate-400 mt-0.5">
-            Simulate step growth rate and space allocation as input size N scales
+            Simulate primitive operation count and 64-bit memory allocations as N scales
           </p>
         </div>
 
@@ -117,16 +134,22 @@ export const BigOComplexityVisualizer: React.FC = () => {
       {/* Output Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center font-mono">
-          <span className="text-slate-500 block text-xs uppercase">Time Complexity Step Operations</span>
-          <span className="text-2xl font-bold text-cyan-400">
-            {operationsCount.toLocaleString()} ops
+          <span className="text-slate-500 block text-xs uppercase">Time Complexity (Primitive Operations)</span>
+          <span className="text-2xl font-bold text-cyan-400 block my-1">
+            {currentOps.toLocaleString()} ops
+          </span>
+          <span className="text-[11px] text-slate-400 block">
+            Formula: {complexities[selectedComplexity].opsFormulaText}
           </span>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center font-mono">
-          <span className="text-slate-500 block text-xs uppercase">Auxiliary Space Complexity</span>
-          <span className="text-2xl font-bold text-indigo-400">
-            {spaceKB < 1024 ? `${spaceKB.toFixed(1)} KB` : `${(spaceKB / 1024).toFixed(2)} MB`}
+          <span className="text-slate-500 block text-xs uppercase">Auxiliary Space (64-bit Memory Allocated)</span>
+          <span className="text-2xl font-bold text-indigo-400 block my-1">
+            {formatBytes(currentBytes)}
+          </span>
+          <span className="text-[11px] text-slate-400 block">
+            Formula: {complexities[selectedComplexity].spaceFormulaText}
           </span>
         </div>
       </div>
