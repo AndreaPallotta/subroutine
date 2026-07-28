@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { KeyRound, ShieldCheck, Lock, RefreshCw, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, RefreshCw, ArrowRight } from 'lucide-react';
 import { audioEngine } from './audio/AudioEngine';
 
-type AuthType = 'kerberos' | 'ntlm' | 'jwt';
+type AuthType = 'kerberos' | 'ntlm' | 'mtls';
 
 export const EnterpriseAuthVisualizer: React.FC = () => {
   const [authType, setAuthType] = useState<AuthType>('kerberos');
@@ -23,14 +23,15 @@ export const EnterpriseAuthVisualizer: React.FC = () => {
     { title: '4. Domain Controller Verification', desc: 'Server sends challenge & response to DC to verify password hash match.', token: 'NetLOGON Validation' },
   ];
 
-  const jwtSteps = [
-    { title: '1. User Credentials Submission', desc: 'Client submits username & password over TLS (HTTPS).', token: 'POST /api/login {user, pass}' },
-    { title: '2. JWT Token Issuance', desc: 'Server verifies password, signs HMAC-SHA256 JWT, and sets SameSite HTTP-Only Cookie.', token: 'JWT: Header.Payload.Signature' },
-    { title: '3. Stateless API Request', desc: 'Client includes JWT Cookie in Authorization header for subsequent API calls.', token: 'Authorization: Bearer <jwt>' },
-    { title: '4. Fast Public Key Verification', desc: 'Server verifies signature statelessly using public key without database lookup.', token: 'Signature Valid ➔ 200 OK' },
+  const mtlsSteps = [
+    { title: '1. Client Hello & Cipher Suite', desc: 'Client initiates TLS 1.3 handshake and offers supported cryptographic cipher suites.', token: 'TLS_CLIENT_HELLO' },
+    { title: '2. Server Hello + Certificate Request', desc: 'Server presents its X.509 certificate and requests Client Certificate.', token: 'SERVER_CERTIFICATE_REQUEST' },
+    { title: '3. Client Certificate Presentation', desc: 'Client presents its own X.509 Certificate chain signed by internal Enterprise CA.', token: 'CLIENT_CERTIFICATE (X.509)' },
+    { title: '4. Certificate Verify (Digital Signature)', desc: 'Client signs handshake transcript using its RSA/ECDSA Private Key to prove ownership.', token: 'CERTIFICATE_VERIFY (RSA Sign)' },
+    { title: '5. Encrypted mTLS Tunnel Established', desc: 'Both parties verify certificates against trusted CA roots & derive symmetric session keys.', token: 'mTLS Tunnel Active (200 OK)' },
   ];
 
-  const steps = authType === 'kerberos' ? kerberosSteps : authType === 'ntlm' ? ntlmSteps : jwtSteps;
+  const steps = authType === 'kerberos' ? kerberosSteps : authType === 'ntlm' ? ntlmSteps : mtlsSteps;
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -51,10 +52,10 @@ export const EnterpriseAuthVisualizer: React.FC = () => {
         <div>
           <h3 className="text-lg font-bold flex items-center gap-2 text-white">
             <ShieldCheck className="w-5 h-5 text-indigo-400" />
-            <span>Authentication Protocol Handshake Simulator</span>
+            <span>Enterprise Authentication Protocol Simulator</span>
           </h3>
           <p className="text-xs font-mono text-slate-400 mt-0.5">
-            Step through Kerberos/SPNEGO, NTLM challenge-response, and JWT Token exchanges
+            Step through Kerberos/SPNEGO, NTLM challenge-response, and Mutual TLS (mTLS) certificate handshakes
           </p>
         </div>
 
@@ -77,12 +78,12 @@ export const EnterpriseAuthVisualizer: React.FC = () => {
             NTLM Auth
           </button>
           <button
-            onClick={() => { setAuthType('jwt'); handleReset(); }}
+            onClick={() => { setAuthType('mtls'); handleReset(); }}
             className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-              authType === 'jwt' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
+              authType === 'mtls' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
             }`}
           >
-            JWT & Cookies
+            Mutual TLS (mTLS)
           </button>
         </div>
       </div>

@@ -1,17 +1,17 @@
 ---
-title: "Enterprise Auth Deep-Dive: NTLM vs Kerberos/SPNEGO vs JWT & Cookies"
-summary: "An interactive security exploration of Active Directory Kerberos ticket handshakes, NTLM challenge-response, and stateless JWT signature verification."
+title: "Enterprise Auth Deep-Dive: NTLM vs Kerberos/SPNEGO vs mTLS"
+summary: "An interactive security exploration of Active Directory Kerberos ticket handshakes, NTLM challenge-response, and Mutual TLS (mTLS) PKI certificate authentication."
 category: "Security"
 level: "Intermediate"
-date: 2026-07-27
-tags: ["Security", "Kerberos", "NTLM", "JWT", "OAuth", "Active Directory"]
+date: 2026-07-28
+tags: ["Security", "Kerberos", "NTLM", "mTLS", "Active Directory", "PKI"]
 featured: true
 ---
 
 import { EnterpriseAuthVisualizer } from '../../components/visualizers/EnterpriseAuthVisualizer';
 import { Callout } from '../../components/ui/Callout';
 
-Securing enterprise networks and modern cloud APIs requires choosing between legacy domain authentication (**NTLM**), Ticket-Granting Active Directory protocols (**Kerberos / SPNEGO**), and stateless token architectures (**JWT & HTTP-Only Cookies**).
+Securing enterprise networks and modern microservice architectures requires choosing between legacy domain authentication (**NTLM**), Ticket-Granting Active Directory protocols (**Kerberos / SPNEGO**), and cryptographic zero-trust PKI architectures (**Mutual TLS / mTLS**).
 
 ---
 
@@ -20,16 +20,16 @@ Securing enterprise networks and modern cloud APIs requires choosing between leg
 - **NTLM (NT LAN Manager)**: Legacy challenge-response protocol. Susceptible to **NTLM Relay attacks** and Pass-the-Hash vulnerabilities because it verifies password hashes directly rather than issuing tickets.
 - **Kerberos & SPNEGO**: Uses a trusted third party - the **Key Distribution Center (KDC)** - to issue encrypted **Ticket Granting Tickets (TGT)** and **Service Tickets (ST)**. Eliminates sending password hashes across the wire.
 - **SPNEGO (Simple and Protected GSSAPI Negotiation Mechanism)**: A wrapper protocol that allows client and server to negotiate whether to use Kerberos or fall back to NTLM over HTTP headers (`Authorization: Negotiate`).
-- **JWT & HTTP-Only Cookies**: Modern web/API stateless authentication. Cryptographically signed payload (HMAC-SHA256 or RS256) stored in `SameSite=Strict` HTTP-only cookies to mitigate XSS and CSRF attacks.
+- **Mutual TLS (mTLS)**: Zero-trust network protocol authentication. Both client and server present X.509 Digital Certificates signed by a trusted Enterprise Certificate Authority (CA) during the TLS handshake, authenticating both endpoints cryptographically before any application data is sent.
 
 ---
 
-## 2. Interactive Handshake Step Simulator
+## 2. Interactive Protocol Handshake Simulator
 
-Step through the handshake sequence below to compare **Kerberos/SPNEGO**, **NTLM Challenge-Response**, and **JWT Stateless Verification**!
+Step through the handshake sequence below to compare **Kerberos/SPNEGO**, **NTLM Challenge-Response**, and **Mutual TLS (mTLS)**!
 
 <Callout type="tip" title="Protocol Handshake Experiment">
-Select Kerberos and click "Next Step" to trace how the Key Distribution Center issues TGT and Service Tickets before client connects to the target server.
+Select Kerberos or Mutual TLS (mTLS) and click "Next Step" to trace how tickets or PKI certificates authenticate clients and servers without transmitting passwords over the wire!
 </Callout>
 
 <EnterpriseAuthVisualizer client:visible />
@@ -47,14 +47,21 @@ graph TD
     KDC -- 4. Service Ticket ST --> C
     C -- 5. AP-REQ + ST --> S[App Server]
     end
+
+    subgraph Mutual TLS (mTLS) Flow
+    C2[Client] -- 1. Client Hello + Client Cert --> S2[App Server]
+    S2 -- 2. Server Hello + Verify Cert --> C2
+    C2 -- 3. Cert Signature Proof --> S2
+    S2 -- 4. mTLS Tunnel Established --> C2
+    end
 ```
 
 ---
 
 ## 4. Authentication Method Matrix
 
-| Protocol | Architecture | Ticket / Token Type | Password Transmitted? | Primary Vulnerability |
+| Protocol | Architecture | Verification Credential | Password Transmitted? | Primary Use Case |
 | :--- | :--- | :--- | :--- | :--- |
-| **NTLM** | Challenge-Response | Hash Response (TYPE 3) | Hash Response Sent | NTLM Relay / Pass-the-Hash |
-| **Kerberos** | KDC Ticket Based | TGT & Service Tickets | **Never** | Kerberoasting / Ticket Forgery |
-| **JWT & Cookies** | Stateless Cryptographic | Signed Base64 JSON | **Never** (TLS Login Only) | Secret Key Compromise / XSS |
+| **NTLM** | Challenge-Response | Hash Response (TYPE 3) | Hash Response Sent | Legacy Windows Domains |
+| **Kerberos / SPNEGO** | KDC Ticket Based | TGT & Service Tickets | **Never** | Active Directory Domains |
+| **Mutual TLS (mTLS)** | PKI Certificate Based | X.509 Client Cert & RSA Sign | **Never** | Zero-Trust Microservices |
