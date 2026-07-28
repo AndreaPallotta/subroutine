@@ -5,7 +5,27 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/sorting-algorithms/</loc>
+    <loc>https://subroutine-cs.cc/articles/big-o-time-space-complexity/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/bloom-filters-probabilistic-indexing/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/bytecode-vm-execution-engine/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/cnn-convolution-feature-maps/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/concurrency-models-gil-free-python/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/cpp-cache-line-optimization/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -17,27 +37,11 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/cpp-cache-line-optimization/</loc>
+    <loc>https://subroutine-cs.cc/articles/enterprise-auth-kerberos-jwt/</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/kernel-bypass-zero-copy/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://subroutine-cs.cc/articles/virtual-memory-page-tables/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://subroutine-cs.cc/articles/perceptron-decision-boundaries/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://subroutine-cs.cc/articles/k-means-clustering-voronoi/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://subroutine-cs.cc/articles/cnn-convolution-feature-maps/</loc>
+    <loc>https://subroutine-cs.cc/articles/fft-fast-fourier-transform/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -45,11 +49,35 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/concurrency-models-gil-free-python/</loc>
+    <loc>https://subroutine-cs.cc/articles/k-means-clustering-voronoi/</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/bytecode-vm-execution-engine/</loc>
+    <loc>https://subroutine-cs.cc/articles/kernel-bypass-zero-copy/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/linux-event-loops-epoll-iouring/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/lock-free-ring-buffer/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/native-vs-hybrid-mobile-frameworks/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/perceptron-decision-boundaries/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/ptp-high-precision-time-sync/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/quantum-error-correction-surface-codes/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -57,11 +85,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://subroutine-cs.cc/articles/sorting-algorithms/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://subroutine-cs.cc/articles/tcp-udp-multicast-networking/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://subroutine-cs.cc/articles/verlet-physics-numerical-integration/</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://subroutine-cs.cc/articles/fft-fast-fourier-transform/</loc>
+    <loc>https://subroutine-cs.cc/articles/virtual-memory-page-tables/</loc>
     <priority>0.8</priority>
   </url>
 </urlset>
