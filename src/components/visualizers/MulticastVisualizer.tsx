@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Zap, Layers, Network } from 'lucide-react';
 import { audioEngine } from './audio/AudioEngine';
 
@@ -7,69 +7,76 @@ type Mode = 'tcp' | 'udp' | 'multicast';
 export const MulticastVisualizer: React.FC = () => {
   const [mode, setMode] = useState<Mode>('multicast');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [packetLoss, setPacketLoss] = useState(20); // 20% loss
+  const [packetLoss, setPacketLoss] = useState(25); // 25% loss default
   const [packetsSent, setPacketsSent] = useState(0);
   const [packetsReceived, setPacketsReceived] = useState(0);
   const [retransmissions, setRetransmissions] = useState(0);
   const [duplicates, setDuplicates] = useState(0);
   const [packetHistory, setPacketHistory] = useState<Array<{ id: number; status: 'delivered' | 'lost' | 'retransmitted' | 'duplicate'; path: string }>>([]);
 
+  const nextIdRef = useRef(1);
+
   // Simulation tick
   useEffect(() => {
     if (!isPlaying) return;
 
     const interval = setInterval(() => {
+      const currentId = nextIdRef.current++;
       setPacketsSent(prev => prev + 1);
-      const isLost = Math.random() * 100 < packetLoss;
-      const currentId = packetsSent + 1;
 
+      const isLost = Math.random() * 100 < packetLoss;
       audioEngine.playNote(220 + (currentId % 8) * 30, 'sine', 0.1, 0.05);
 
       if (mode === 'tcp') {
         if (isLost) {
           setRetransmissions(prev => prev + 1);
-          setPacketsReceived(prev => prev + 1); // Eventual delivery after stall
-          setPacketHistory(prev => [{ id: currentId, status: 'retransmitted', path: 'Sender -> TCP Buffer (Stall) -> Receiver' }, ...prev.slice(0, 7)]);
+          setPacketsReceived(prev => prev + 1); // Eventual delivery after TCP retransmission stall
+          setPacketHistory(prev => [{ id: currentId, status: 'retransmitted', path: 'Sender -> TCP Stall (RTO) -> Delivered' }, ...prev.slice(0, 7)]);
         } else {
           setPacketsReceived(prev => prev + 1);
-          setPacketHistory(prev => [{ id: currentId, status: 'delivered', path: 'Sender -> Receiver (ACK)' }, ...prev.slice(0, 7)]);
+          setPacketHistory(prev => [{ id: currentId, status: 'delivered', path: 'Sender -> Receiver (ACK Delivered)' }, ...prev.slice(0, 7)]);
         }
       } else if (mode === 'udp') {
         if (isLost) {
-          setPacketHistory(prev => [{ id: currentId, status: 'lost', path: 'Sender -> [Dropped at Switch]' }, ...prev.slice(0, 7)]);
+          // UDP packet dropped permanently - packetsReceived is NOT incremented!
+          setPacketHistory(prev => [{ id: currentId, status: 'lost', path: 'Sender -> [Dropped at Switch - Lost Forever]' }, ...prev.slice(0, 7)]);
         } else {
           setPacketsReceived(prev => prev + 1);
           setPacketHistory(prev => [{ id: currentId, status: 'delivered', path: 'Sender -> Receiver (Fire & Forget)' }, ...prev.slice(0, 7)]);
         }
       } else if (mode === 'multicast') {
         if (isLost) {
+          // Multicast packet dropped by network congestion
           setPacketHistory(prev => [{ id: currentId, status: 'lost', path: 'Publisher -> IGMP Group 239.255.0.1 (Dropped)' }, ...prev.slice(0, 7)]);
         } else {
-          // Multicast PIM tree may duplicate packets on Join tree re-convergence
-          const isDuplicate = Math.random() < 0.15; // 15% duplicate chance
+          // Multicast PIM tree join re-convergence can produce duplicate packets
+          const isDuplicate = Math.random() < 0.25; // 25% duplicate chance on success
           if (isDuplicate) {
             setDuplicates(prev => prev + 1);
-            setPacketsReceived(prev => prev + 2);
-            setPacketHistory(prev => [{ id: currentId, status: 'duplicate', path: 'Publisher -> PIM-SM Tree -> Recv A & Recv B (Duplicate)' }, ...prev.slice(0, 7)]);
+            setPacketsReceived(prev => prev + 1);
+            setPacketHistory(prev => [{ id: currentId, status: 'duplicate', path: 'Publisher -> PIM-SM Tree -> Recv A & B (Duplicate Packet)' }, ...prev.slice(0, 7)]);
           } else {
             setPacketsReceived(prev => prev + 1);
             setPacketHistory(prev => [{ id: currentId, status: 'delivered', path: 'Publisher -> PIM-SM Tree -> 3 Subscribers' }, ...prev.slice(0, 7)]);
           }
         }
       }
-    }, 1200);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPlaying, mode, packetLoss, packetsSent]);
+  }, [isPlaying, mode, packetLoss]);
 
   const handleReset = () => {
     setIsPlaying(false);
+    nextIdRef.current = 1;
     setPacketsSent(0);
     setPacketsReceived(0);
     setRetransmissions(0);
     setDuplicates(0);
     setPacketHistory([]);
   };
+
+  const calculatedLoss = Math.max(0, packetsSent - packetsReceived);
 
   return (
     <div className="my-8 rounded-2xl border border-slate-800 bg-[#0f172a] p-6 shadow-2xl font-sans text-slate-100">
@@ -125,7 +132,7 @@ export const MulticastVisualizer: React.FC = () => {
           <input
             type="range"
             min="0"
-            max="50"
+            max="60"
             value={packetLoss}
             onChange={e => setPacketLoss(Number(e.target.value))}
             className="w-full accent-blue-500 bg-slate-800 rounded-lg cursor-pointer"
@@ -152,6 +159,7 @@ export const MulticastVisualizer: React.FC = () => {
           </button>
         </div>
 
+        {/* Live Counters */}
         <div className="grid grid-cols-3 gap-2 text-center font-mono text-xs">
           <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <span className="text-slate-400 block text-[10px] uppercase">Sent</span>
@@ -166,7 +174,7 @@ export const MulticastVisualizer: React.FC = () => {
               {mode === 'tcp' ? 'Retrans' : mode === 'multicast' ? 'Duplicates' : 'Loss'}
             </span>
             <span className="text-amber-400 font-bold text-base">
-              {mode === 'tcp' ? retransmissions : mode === 'multicast' ? duplicates : packetsSent - packetsReceived}
+              {mode === 'tcp' ? retransmissions : mode === 'multicast' ? duplicates : calculatedLoss}
             </span>
           </div>
         </div>
