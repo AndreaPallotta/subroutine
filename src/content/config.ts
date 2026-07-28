@@ -5,7 +5,7 @@ const articlesCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
-    category: z.enum(['Algorithms', 'Systems', 'AI & ML', 'Languages', 'Physics & Math', 'Networking', 'Security', 'Quantum']),
+    category: z.enum(['Algorithms', 'Systems', 'AI & ML', 'Languages', 'Physics & Math', 'Networking', 'Security']),
     level: z.enum(['Beginner', 'Intermediate', 'Advanced']),
     date: z.date(),
     tags: z.array(z.string()).default([]),
