@@ -1,6 +1,6 @@
 ---
 title: "Native vs Hybrid Mobile Frameworks: Swift/Kotlin vs React Native & Flutter"
-summary: "A comprehensive architectural deep-dive into mobile runtime environments, JSI thread marshalling, Skia/Impeller C++ rendering, and performance trade-offs."
+summary: "An interactive deep-dive into mobile runtime environments, JSI thread marshalling, Skia/Impeller C++ rendering, and performance trade-offs."
 category: "Languages"
 level: "Intermediate"
 date: 2026-07-28
@@ -8,6 +8,7 @@ tags: ["Languages", "Mobile", "React Native", "Flutter", "Swift", "Kotlin"]
 featured: true
 ---
 
+import { NativeVsHybridStackVisualizer } from '../../components/visualizers/NativeVsHybridStackVisualizer';
 import { Callout } from '../../components/ui/Callout';
 
 When engineering high-scale mobile applications, developers face a core architectural choice: build pure **Native apps** (using Swift for iOS and Kotlin for Android) or adopt **Hybrid Cross-Platform frameworks** (such as React Native or Flutter).
@@ -24,7 +25,19 @@ While hybrid frameworks accelerate feature delivery with single-codebase develop
 
 ---
 
-## 2. Deep Architecture Comparison
+## 2. Interactive Mobile Software Stack Simulator
+
+Trace UI events down every software layer—from high-level JavaScript/Dart business logic down to C++ FFI bridges, layout trees, and GPU hardware pipelines—across **Swift/Kotlin**, **React Native**, and **Flutter**!
+
+<Callout type="tip" title="Software Stack Layer Experiment">
+Select a stack (Native, React Native JSI, or Flutter Impeller) and click "Trace UI Event Down Stack" to observe how touch events propagate across thread contexts to the GPU!
+</Callout>
+
+<NativeVsHybridStackVisualizer client:visible />
+
+---
+
+## 3. Deep Architecture Comparison
 
 ```mermaid
 graph TD
@@ -47,7 +60,7 @@ graph TD
 
 ---
 
-## 3. Code Comparison: Native vs Hybrid Bridge Invocation
+## 4. Code Comparison: Native vs Hybrid Bridge Invocation
 
 ### Native Swift (Direct Call)
 ```swift
@@ -89,7 +102,7 @@ void installNativeBridge(facebook::jsi::Runtime& runtime) {
 
 ---
 
-## 4. Mobile Framework Comparison Matrix
+## 5. Mobile Framework Comparison Matrix
 
 | Metric | Pure Native (Swift/Kotlin) | React Native (Hermes JSI) | Flutter (Dart Impeller) |
 | :--- | :--- | :--- | :--- |
