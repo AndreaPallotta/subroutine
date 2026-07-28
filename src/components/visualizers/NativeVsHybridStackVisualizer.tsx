@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layers, Play, RotateCcw, ArrowDown, Cpu, Zap, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layers, Play, RotateCcw, ArrowDown } from 'lucide-react';
 import { audioEngine } from './audio/AudioEngine';
 
 type StackType = 'native' | 'react-native' | 'flutter';
@@ -45,21 +45,36 @@ export const NativeVsHybridStackVisualizer: React.FC = () => {
     }
   };
 
-  const handleSimulatePass = () => {
-    setIsSimulating(true);
-    const layersCount = stacks[stackType].layers.length;
-    let step = 0;
+  const layersList = stacks[stackType].layers;
 
-    const interval = setInterval(() => {
-      if (step < layersCount) {
-        setActiveLayerIdx(step);
-        audioEngine.playNote(300 + step * 80, 'sine', 0.1, 0.05);
-        step++;
-      } else {
-        clearInterval(interval);
+  useEffect(() => {
+    if (!isSimulating) return;
+
+    if (activeLayerIdx === null) {
+      setActiveLayerIdx(0);
+      audioEngine.playNote(300, 'sine', 0.1, 0.05);
+      return;
+    }
+
+    if (activeLayerIdx < layersList.length - 1) {
+      const timer = setTimeout(() => {
+        const nextIdx = activeLayerIdx + 1;
+        setActiveLayerIdx(nextIdx);
+        audioEngine.playNote(300 + nextIdx * 70, 'sine', 0.1, 0.05);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => {
         setIsSimulating(false);
-      }
-    }, 450);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isSimulating, activeLayerIdx, layersList.length]);
+
+  const handleSimulatePass = () => {
+    setActiveLayerIdx(0);
+    setIsSimulating(true);
+    audioEngine.playNote(300, 'sine', 0.1, 0.05);
   };
 
   const handleReset = () => {
@@ -119,7 +134,7 @@ export const NativeVsHybridStackVisualizer: React.FC = () => {
         </div>
 
         <div className="space-y-2">
-          {stacks[stackType].layers.map((layer, idx) => {
+          {layersList.map((layer, idx) => {
             const isActive = activeLayerIdx === idx;
 
             return (
@@ -127,7 +142,7 @@ export const NativeVsHybridStackVisualizer: React.FC = () => {
                 key={idx}
                 className={`p-4 rounded-xl border font-mono transition-all flex items-center justify-between gap-4 ${
                   isActive
-                    ? 'bg-amber-950 border-amber-500 text-amber-300 shadow-lg shadow-amber-500/20 scale-[1.02] font-bold'
+                    ? 'bg-amber-950 border-amber-500 text-amber-300 shadow-lg shadow-amber-500/20 scale-[1.02] font-bold ring-2 ring-amber-500'
                     : layer.color
                 }`}
               >
@@ -140,7 +155,7 @@ export const NativeVsHybridStackVisualizer: React.FC = () => {
                   <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
                     {layer.thread}
                   </span>
-                  {idx < stacks[stackType].layers.length - 1 && (
+                  {idx < layersList.length - 1 && (
                     <ArrowDown className="w-3.5 h-3.5 text-slate-600" />
                   )}
                 </div>

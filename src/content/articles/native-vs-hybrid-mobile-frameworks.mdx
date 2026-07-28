@@ -42,19 +42,19 @@ Select a stack (Native, React Native JSI, or Flutter Impeller) and click "Trace 
 ```mermaid
 graph TD
     subgraph Pure Native Architecture
-    SW[Swift / Kotlin App] -- Direct Call 0ms --> OS1[iOS / Android Platform Views]
-    OS1 -- GPU Driver --> SCREEN1[Display Hardware]
+    SW["Swift / Kotlin App"] --> OS1["iOS / Android Platform Views"]
+    OS1 --> SCREEN1["Display Hardware"]
     end
 
     subgraph React Native Architecture
-    JS[JavaScript / Hermes Engine] -- JSI C++ Marshalling --> SHADOW[React Shadow Tree]
-    SHADOW -- Asynchronous Bridge --> OS2[Native Platform Views]
-    OS2 -- GPU Driver --> SCREEN2[Display Hardware]
+    JS["JavaScript / Hermes Engine"] --> SHADOW["React Shadow Tree"]
+    SHADOW --> OS2["Native Platform Views"]
+    OS2 --> SCREEN2["Display Hardware"]
     end
 
     subgraph Flutter Architecture
-    DART[Dart Code] -- Direct C++ Canvas Call --> IMP[Impeller / Skia GPU Engine]
-    IMP -- Direct Metal / Vulkan --> SCREEN3[Display Hardware]
+    DART["Dart Code"] --> IMP["Impeller / Skia GPU Engine"]
+    IMP --> SCREEN3["Display Hardware"]
     end
 ```
 
