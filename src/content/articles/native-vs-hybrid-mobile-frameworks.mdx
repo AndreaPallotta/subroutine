@@ -1,6 +1,6 @@
 ---
 title: "Native vs Hybrid Mobile Frameworks: Swift/Kotlin vs React Native & Flutter"
-summary: "An interactive deep-dive into mobile runtime architectures, JSI thread marshalling, Skia/Impeller C++ rendering, and performance trade-offs."
+summary: "A comprehensive architectural deep-dive into mobile runtime environments, JSI thread marshalling, Skia/Impeller C++ rendering, and performance trade-offs."
 category: "Languages"
 level: "Intermediate"
 date: 2026-07-28
@@ -8,7 +8,6 @@ tags: ["Languages", "Mobile", "React Native", "Flutter", "Swift", "Kotlin"]
 featured: true
 ---
 
-import { NativeVsHybridVisualizer } from '../../components/visualizers/NativeVsHybridVisualizer';
 import { Callout } from '../../components/ui/Callout';
 
 When engineering high-scale mobile applications, developers face a core architectural choice: build pure **Native apps** (using Swift for iOS and Kotlin for Android) or adopt **Hybrid Cross-Platform frameworks** (such as React Native or Flutter).
@@ -25,19 +24,7 @@ While hybrid frameworks accelerate feature delivery with single-codebase develop
 
 ---
 
-## 2. Interactive Mobile Framework Benchmark
-
-Simulate runtime thread marshalling, RAM footprint, and frame rates across **Swift/Kotlin**, **React Native**, and **Flutter** below!
-
-<Callout type="tip" title="Mobile Benchmark Experiment">
-Select a framework and click "Run Stress Benchmark" to simulate 60Hz animation loop execution and compare bridge latency and RAM overhead!
-</Callout>
-
-<NativeVsHybridVisualizer client:visible />
-
----
-
-## 3. Architecture Comparison
+## 2. Deep Architecture Comparison
 
 ```mermaid
 graph TD
@@ -56,6 +43,48 @@ graph TD
     DART[Dart Code] -- Direct C++ Canvas Call --> IMP[Impeller / Skia GPU Engine]
     IMP -- Direct Metal / Vulkan --> SCREEN3[Display Hardware]
     end
+```
+
+---
+
+## 3. Code Comparison: Native vs Hybrid Bridge Invocation
+
+### Native Swift (Direct Call)
+```swift
+import UIKit
+import CoreLocation
+
+class NativeLocationManager: NSObject, CLLocationManagerDelegate {
+    private let locationManager = CLLocationManager()
+    
+    func requestLocation() {
+        // Direct execution on native thread with zero marshalling overhead
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+}
+```
+
+### React Native JSI C++ Host Object
+```cpp
+// Hermes JSI C++ Host Object binding native methods directly to JS runtime
+#include <jsi/jsi.h>
+
+void installNativeBridge(facebook::jsi::Runtime& runtime) {
+    auto locationFunc = facebook::jsi::Function::createFromHostFunction(
+        runtime,
+        facebook::jsi::PropNameID::forAscii(runtime, "requestLocation"),
+        0,
+        [](facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal, const facebook::jsi::Value* args, size_t count) {
+            // Asynchronous thread marshalling from JS thread to Native Main Thread
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NativeLocationManager triggerLocationRequest];
+            });
+            return facebook::jsi::Value::undefined();
+        }
+    );
+    runtime.global().setProperty(runtime, "requestLocation", locationFunc);
+}
 ```
 
 ---
