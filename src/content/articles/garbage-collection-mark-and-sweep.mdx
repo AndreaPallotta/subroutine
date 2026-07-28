@@ -42,8 +42,8 @@ Click <strong>"Sever O2 → O4 Reference"</strong> and trigger the GC sweep. Wat
 
 | Language | Primary Memory Strategy | Stop-The-World (STW) Overhead | Memory Safety Model |
 | :--- | :--- | :--- | :--- |
-| **Go** | Concurrent Tri-color Mark-and-Sweep | Sub-millisecond ($<1\text{ms}$) | Automatic Garbage Collector |
-| **Java (JVM)** | Generational ZGC / G1 Collector | Configurable ($<10\text{ms}$) | Automatic Garbage Collector |
+| **Go** | Concurrent Tri-color Mark-and-Sweep | Sub-millisecond ($&lt;1\text{ms}$) | Automatic Garbage Collector |
+| **Java (JVM)** | Generational ZGC / G1 Collector | Configurable ($&lt;10\text{ms}$) | Automatic Garbage Collector |
 | **Rust** | RAII & Compile-time Ownership | Zero (No GC runtime) | Affine Type System & Borrow Checker |
 | **C++** | Manual / Smart Pointers (`std::unique_ptr`) | Zero (Deterministic destructors) | Manual & RAII destructors |
 | **TypeScript / V8** | Generational Scavenger + Mark-Sweep | Minor idle-phase pauses | Automatic Garbage Collector |

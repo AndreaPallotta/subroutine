@@ -1,0 +1,62 @@
+---
+title: "Lock-Free Programming & Atomic Queues (SPSC / MPMC Ring Buffers)"
+summary: "An interactive systems exploration of C++ atomic primitives, Compare-And-Swap (CAS), acquire-release memory orderings, and false sharing cache-line padding."
+category: "Systems"
+level: "Advanced"
+date: 2026-07-27
+tags: ["Systems", "C++", "Concurrency", "Lock Free", "Atomics", "Low Latency"]
+featured: true
+---
+
+import { LockFreeRingBufferVisualizer } from '../../components/visualizers/LockFreeRingBufferVisualizer';
+import { Callout } from '../../components/ui/Callout';
+
+In ultra-low-latency C++ applications—such as high-frequency order matching engines and audio DSP engines—traditional thread synchronization using `std::mutex` or OS semaphores introduces unacceptable latency spikes due to **kernel thread sleeping**, **context switches**, and **lock contention**.
+
+To achieve deterministic sub-microsecond performance, modern systems use **Lock-Free Single-Producer Single-Consumer (SPSC)** and **Multi-Producer Multi-Consumer (MPMC)** Ring Buffers.
+
+---
+
+## 1. Summary & Key Takeaways
+
+- **The Cost of `std::mutex`**: When a thread fails to acquire a mutex lock, the OS kernel suspends the thread (Ring 3 $\rightarrow$ Ring 0 context switch) and puts it to sleep, introducing 1,000+ CPU cycle delays.
+- **Lock-Free Atomic Primitives**: Uses hardware CPU instructions (`LOCK CMPXCHG` on x86) to perform **Compare-And-Swap (CAS)** operations without kernel locks.
+- **Single-Producer Single-Consumer (SPSC)**: Eliminates CAS overhead entirely! The producer exclusively mutates the `head` pointer using `memory_order_release`, while the consumer exclusively mutates the `tail` pointer using `memory_order_acquire`.
+- **False Sharing Cache Line Padding**: In multi-threaded Ring Buffers, if `head` and `tail` reside on the same 64-byte L1 CPU cache line, Core 0's writes invalidate Core 1's cache line. We fix this by padding memory with `alignas(64)`.
+
+---
+
+## 2. Interactive SPSC Ring Buffer Simulator
+
+Run the interactive concurrent thread benchmark below to compare thread contention in a **Mutex Queue** against an **Atomic Lock-Free SPSC Ring Buffer**!
+
+<Callout type="tip" title="Concurrency Experiment">
+Run **std::mutex Queue** to watch thread lock contention accumulate. Then switch to **std::atomic SPSC Ring** to observe 0 lock contention and sub-microsecond pointer increments.
+</Callout>
+
+<LockFreeRingBufferVisualizer client:visible />
+
+---
+
+## 3. Lock-Free SPSC Memory Architecture
+
+```mermaid
+graph LR
+    subgraph Producer Thread (Core 0)
+    P[Write Item to Buffer[head]] -- 1. Store Release --> H[std::atomic<size_t> head]
+    end
+
+    subgraph Consumer Thread (Core 1)
+    T[std::atomic<size_t> tail] -- 2. Load Acquire --> C[Read Item from Buffer[tail]]
+    end
+```
+
+---
+
+## 4. Synchronization Strategy Matrix
+
+| Synchronization Strategy | Thread Blocking? | Lock Contention? | Hardware CPU Instruction | Latency Profile |
+| :--- | :--- | :--- | :--- | :--- |
+| **`std::mutex` / Mutex Guard** | **Yes** (Kernel Sleep) | High under load | OS Futex / Syscall | Variable (1µs – 100µs) |
+| **`std::atomic` MPMC Queue** | **No** (Spinlock/CAS) | Moderate (CAS retries) | `LOCK CMPXCHG` | Low (~100ns) |
+| **Lock-Free SPSC Ring Buffer** | **No** | **Zero** | `MOV` (Atomic Store/Load) | Ultra-Low (&lt;20ns) |

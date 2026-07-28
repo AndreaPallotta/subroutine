@@ -49,6 +49,6 @@ $$\text{Virtual Address (48 bits)} \implies \text{PML4 (9 bits)} \to \text{PDPT 
 
 | Lookup Path | Memory Access Location | Typical Latency | OS Overhead |
 | :--- | :--- | :--- | :--- |
-| **TLB Hit** | CPU On-Die L1 Cache | $<1 \text{ ns}$ (0 extra RAM reads) | None (Pure Hardware) |
+| **TLB Hit** | CPU On-Die L1 Cache | $&lt;1 \text{ ns}$ (0 extra RAM reads) | None (Pure Hardware) |
 | **TLB Miss** | Multi-level Page Table in RAM | $\sim 10-50 \text{ ns}$ (4 RAM reads) | MMU Hardware Walk |
 | **Page Fault** | NVMe SSD / Hard Disk Swap | $\sim 10-100 \mu\text{s}$ ($100,000\times$ slower!) | Kernel OS Context Switch |
