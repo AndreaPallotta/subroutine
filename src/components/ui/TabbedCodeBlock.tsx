@@ -8,6 +8,7 @@ export interface CodeSnippets {
     ext: string;
     lang: string;
     code: string;
+    filename?: string;
   };
 }
 
@@ -15,17 +16,20 @@ interface TabbedCodeBlockProps {
   title?: string;
   snippets: CodeSnippets;
   defaultLang?: string;
+  defaultFilenamePrefix?: string;
 }
 
 export const TabbedCodeBlock: React.FC<TabbedCodeBlockProps> = ({
-  title = 'Platform Execution Code',
+  title = 'Implementation Code',
   snippets,
   defaultLang,
+  defaultFilenamePrefix = 'code_example',
 }) => {
   const keys = Object.keys(snippets);
   const [selectedKey, setSelectedKey] = useState(defaultLang && snippets[defaultLang] ? defaultLang : keys[0]);
 
   const activeSnippet = snippets[selectedKey];
+  const displayFilename = activeSnippet.filename || `${defaultFilenamePrefix}.${activeSnippet.ext}`;
 
   return (
     <div className="my-6 rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl font-sans">
@@ -56,7 +60,7 @@ export const TabbedCodeBlock: React.FC<TabbedCodeBlockProps> = ({
       <CodeBlock
         code={activeSnippet.code}
         language={activeSnippet.lang}
-        filename={`mobile_execution.${activeSnippet.ext}`}
+        filename={displayFilename}
         langLabel={activeSnippet.label}
       />
     </div>

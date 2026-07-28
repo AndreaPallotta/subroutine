@@ -216,5 +216,12 @@ impl BloomFilter {
     }
   };
 
-  return <TabbedCodeBlock title="Bloom Filter Implementation in 6 Languages" snippets={snippets} defaultLang="cpp" />;
+  return (
+    <TabbedCodeBlock
+      title="Bloom Filter Implementation in 6 Languages"
+      snippets={snippets}
+      defaultLang="cpp"
+      defaultFilenamePrefix="bloom_filter"
+    />
+  );
 };
