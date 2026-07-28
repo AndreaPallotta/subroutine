@@ -18,7 +18,7 @@ Securing enterprise networks and modern cloud APIs requires choosing between leg
 ## 1. Summary & Key Takeaways
 
 - **NTLM (NT LAN Manager)**: Legacy challenge-response protocol. Susceptible to **NTLM Relay attacks** and Pass-the-Hash vulnerabilities because it verifies password hashes directly rather than issuing tickets.
-- **Kerberos & SPNEGO**: Uses a trusted third party—the **Key Distribution Center (KDC)**—to issue encrypted **Ticket Granting Tickets (TGT)** and **Service Tickets (ST)**. Eliminates sending password hashes across the wire.
+- **Kerberos & SPNEGO**: Uses a trusted third party - the **Key Distribution Center (KDC)** - to issue encrypted **Ticket Granting Tickets (TGT)** and **Service Tickets (ST)**. Eliminates sending password hashes across the wire.
 - **SPNEGO (Simple and Protected GSSAPI Negotiation Mechanism)**: A wrapper protocol that allows client and server to negotiate whether to use Kerberos or fall back to NTLM over HTTP headers (`Authorization: Negotiate`).
 - **JWT & HTTP-Only Cookies**: Modern web/API stateless authentication. Cryptographically signed payload (HMAC-SHA256 or RS256) stored in `SameSite=Strict` HTTP-only cookies to mitigate XSS and CSRF attacks.
 

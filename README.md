@@ -7,11 +7,11 @@ Subroutine is an interactive educational web platform for computer science topic
 - **Interactive Visualizers**: Audio-visual simulations built with HTML5 Canvas, Web Audio API, and React.
 - **Multilingual Code Examples**: Code implementations available across C++, Python, Java, Go, Rust, and TypeScript.
 - **Topics Covered**:
-  - Algorithms (Sorting, Dijkstra & A* Search, 0/1 Knapsack DP)
-  - Systems & Hardware (C++ Cache Line Locality, Kernel Bypass Zero-Copy, Virtual Memory & Page Tables)
-  - AI & Machine Learning (Perceptron Decision Boundaries, K-Means Clustering, CNN 2D Convolution Filters)
-  - Programming Language Internals (Garbage Collection Mark-and-Sweep, GIL-Free Python Concurrency, VM Bytecode Engines)
-  - Physics & Mathematics (Qubits & Bloch Sphere, Verlet vs Euler Numerical Integration, Fast Fourier Transform)
+ - Algorithms (Sorting, Dijkstra & A* Search, 0/1 Knapsack DP)
+ - Systems & Hardware (C++ Cache Line Locality, Kernel Bypass Zero-Copy, Virtual Memory & Page Tables)
+ - AI & Machine Learning (Perceptron Decision Boundaries, K-Means Clustering, CNN 2D Convolution Filters)
+ - Programming Language Internals (Garbage Collection Mark-and-Sweep, GIL-Free Python Concurrency, VM Bytecode Engines)
+ - Physics & Mathematics (Qubits & Bloch Sphere, Verlet vs Euler Numerical Integration, Fast Fourier Transform)
 
 ## Tech Stack
 

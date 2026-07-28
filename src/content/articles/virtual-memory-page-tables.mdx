@@ -11,7 +11,7 @@ featured: true
 import { VirtualMemoryVisualizer } from '../../components/visualizers/VirtualMemoryVisualizer';
 import { Callout } from '../../components/ui/Callout';
 
-**Virtual Memory** is one of the most fundamental abstractions in modern operating systems. It provides every process with the illusion of possessing a large, contiguous private address space—protecting application memory while hardware Memory Management Units (MMUs) map virtual pages to physical RAM frames.
+**Virtual Memory** is one of the most fundamental abstractions in modern operating systems. It provides every process with the illusion of possessing a large, contiguous private address space - protecting application memory while hardware Memory Management Units (MMUs) map virtual pages to physical RAM frames.
 
 ---
 
@@ -19,8 +19,8 @@ import { Callout } from '../../components/ui/Callout';
 
 - **Virtual-to-Physical Address Translation**: The CPU Memory Management Unit (MMU) splits virtual addresses into a **Virtual Page Number (VPN)** and a **Page Offset**.
 - **Translation Lookaside Buffer (TLB)**: An ultra-fast hardware cache on the CPU die storing recent page translations.
-  - **TLB Hit**: Translation found in 0 extra memory cycles!
-  - **TLB Miss**: Requires a 4-level page table walk through RAM (~50–100 cycles).
+ - **TLB Hit**: Translation found in 0 extra memory cycles!
+ - **TLB Miss**: Requires a 4-level page table walk through RAM (~50-100 cycles).
 - **Page Fault**: Occurs when a virtual address references a page not currently resident in physical RAM, forcing the OS kernel to read the page from disk swap space.
 
 ---

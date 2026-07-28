@@ -11,7 +11,7 @@ featured: true
 import { LockFreeRingBufferVisualizer } from '../../components/visualizers/LockFreeRingBufferVisualizer';
 import { Callout } from '../../components/ui/Callout';
 
-In ultra-low-latency C++ applications—such as high-frequency order matching engines and audio DSP engines—traditional thread synchronization using `std::mutex` or OS semaphores introduces unacceptable latency spikes due to **kernel thread sleeping**, **context switches**, and **lock contention**.
+In ultra-low-latency C++ applications - such as high-frequency order matching engines and audio DSP engines - traditional thread synchronization using `std::mutex` or OS semaphores introduces unacceptable latency spikes due to **kernel thread sleeping**, **context switches**, and **lock contention**.
 
 To achieve deterministic sub-microsecond performance, modern systems use **Lock-Free Single-Producer Single-Consumer (SPSC)** and **Multi-Producer Multi-Consumer (MPMC)** Ring Buffers.
 
@@ -57,6 +57,6 @@ graph LR
 
 | Synchronization Strategy | Thread Blocking? | Lock Contention? | Hardware CPU Instruction | Latency Profile |
 | :--- | :--- | :--- | :--- | :--- |
-| **`std::mutex` / Mutex Guard** | **Yes** (Kernel Sleep) | High under load | OS Futex / Syscall | Variable (1µs – 100µs) |
+| **`std::mutex` / Mutex Guard** | **Yes** (Kernel Sleep) | High under load | OS Futex / Syscall | Variable (1µs - 100µs) |
 | **`std::atomic` MPMC Queue** | **No** (Spinlock/CAS) | Moderate (CAS retries) | `LOCK CMPXCHG` | Low (~100ns) |
 | **Lock-Free SPSC Ring Buffer** | **No** | **Zero** | `MOV` (Atomic Store/Load) | Ultra-Low (&lt;20ns) |

@@ -21,7 +21,7 @@ Over the last 25 years, Linux async I/O has evolved through three distinct parad
 
 - **POSIX `select()` / `poll()` Bottleneck**: Scans the entire file descriptor array linearly ($O(N)$) on every loop iteration. With 10,000 open sockets, inspecting 5 active sockets forces 10,000 array checks in the kernel.
 - **Linux `epoll` ($O(1)$)**: Uses an in-kernel **Red-Black Tree** to track open sockets and a **Ready List** populated by NIC interrupts. Calling `epoll_wait()` returns *only* active file descriptors in $O(1)$ time.
-- **Linux `io_uring`**: Eliminates kernel context switch overhead entirely! Uses a pair of lock-free circular ring buffers—a **Submission Queue (SQ)** and a **Completion Queue (CQ)**—shared directly between user space and the kernel via mapped memory.
+- **Linux `io_uring`**: Eliminates kernel context switch overhead entirely! Uses a pair of lock-free circular ring buffers - a **Submission Queue (SQ)** and a **Completion Queue (CQ)** - shared directly between user space and the kernel via mapped memory.
 - **Zero-Syscall Mode (`IORING_SETUP_SQPOLL`)**: A kernel thread polls the Submission Queue directly, allowing user applications to submit read/write I/O requests with **zero system calls**.
 
 ---

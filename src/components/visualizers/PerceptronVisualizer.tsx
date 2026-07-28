@@ -430,7 +430,7 @@ export const PerceptronVisualizer: React.FC = () => {
                 activeLabel === -1 ? 'bg-pink-500 text-slate-950 shadow' : 'bg-slate-800 text-slate-400'
               }`}
             >
-              - Class B (Pink)
+             - Class B (Pink)
             </button>
           </div>
 

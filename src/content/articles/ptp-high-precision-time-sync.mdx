@@ -19,11 +19,11 @@ While standard operating systems use **NTP (Network Time Protocol)** over softwa
 
 ## 1. Summary & Key Takeaways
 
-- **NTP (Software Time Sync)**: Synchronizes clocks over software UDP packets. Subject to OS kernel scheduling jitter and network queue delays, yielding **millisecond-level accuracy (1ms – 50ms)**.
+- **NTP (Software Time Sync)**: Synchronizes clocks over software UDP packets. Subject to OS kernel scheduling jitter and network queue delays, yielding **millisecond-level accuracy (1ms - 50ms)**.
 - **PTP (IEEE 1588 Hardware Timestamping)**: Bypasses software stack jitter by capturing timestamps directly at the Network Interface Card (NIC) MAC/PHY layer as packets enter or leave the wire. Yields **sub-microsecond accuracy (&lt;100 nanoseconds)**.
 - **Master-Slave PTP Calculations**:
-  - Network Delay $\delta = \frac{(t_2 - t_1) + (t_4 - t_3)}{2}$
-  - Clock Offset $\theta = \frac{(t_2 - t_1) - (t_4 - t_3)}{2}$
+ - Network Delay $\delta = \frac{(t_2 - t_1) + (t_4 - t_3)}{2}$
+ - Clock Offset $\theta = \frac{(t_2 - t_1) - (t_4 - t_3)}{2}$
 - **Google TrueTime Architecture**: Combines GPS receivers and Atomic Clocks in every data center to bound clock uncertainty ($\epsilon$). Allows distributed transactions to commit without cross-datacenter locking.
 
 ---
@@ -64,6 +64,6 @@ graph TD
 
 | Protocol | Hardware Layer | Accuracy Level | Regulatory Compliance | Primary Use Case |
 | :--- | :--- | :--- | :--- | :--- |
-| **NTP** | Software Socket | 1ms – 50ms | Basic Server Sync | Standard Web Servers & Linux |
+| **NTP** | Software Socket | 1ms - 50ms | Basic Server Sync | Standard Web Servers & Linux |
 | **PTP (IEEE 1588)** | Hardware NIC PHY/MAC | **&lt;100 Nanoseconds** | MiFID II (100µs limit) & FINRA | HFT Exchanges, Telecom, Smart Grids |
 | **Google TrueTime** | GPS + Atomic Clocks | **&lt;1 Millisecond Bound** | Global Spanner Consensus | Distributed SQL Databases |

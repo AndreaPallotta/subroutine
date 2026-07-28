@@ -19,10 +19,10 @@ When building physics engines for video games, graphics simulations, or astronom
 
 - **Explicit Euler Method**: Updates position using current velocity:
   $$x_{t+\Delta t} = x_t + v_t \Delta t, \quad v_{t+\Delta t} = v_t + a_t \Delta t$$
-  - **Flaw**: Accumulates truncation error over time, causing physical systems to artificially gain energy and explode!
+ - **Flaw**: Accumulates truncation error over time, causing physical systems to artificially gain energy and explode!
 - **Verlet Integration**: Evaluates position from current $x_t$ and previous $x_{t-\Delta t}$ frame positions:
   $$x_{t+\Delta t} = 2x_t - x_{t-\Delta t} + a_t \Delta t^2$$
-  - **Advantage**: **Symplectic & time-reversible**, accurately conserving total mechanical energy (Potential + Kinetic).
+ - **Advantage**: **Symplectic & time-reversible**, accurately conserving total mechanical energy (Potential + Kinetic).
 
 ---
 
