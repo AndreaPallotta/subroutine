@@ -55,6 +55,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <!-- KaTeX CSS for math typesetting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+
+    <!-- Mermaid JS library for inline diagram rendering -->
+    <script is:inline src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
     {/* Left Vertical Sidebar Navigation */}
@@ -67,55 +70,53 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       </main>
     </div>
 
-    <!-- Client-Side Mermaid Diagram Renderer -->
-    <script>
-      import mermaid from 'mermaid';
+    <!-- Client-Side Mermaid Diagram Inline Renderer -->
+    <script is:inline>
+      (function() {
+        function renderMermaid() {
+          if (typeof mermaid === 'undefined') return;
 
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'dark',
-        themeVariables: {
-          darkMode: true,
-          background: '#090d16',
-          primaryColor: '#1e293b',
-          primaryTextColor: '#f8fafc',
-          primaryBorderColor: '#334155',
-          lineColor: '#38bdf8',
-          secondaryColor: '#0f172a',
-          tertiaryColor: '#1e1b4b',
-        },
-      });
-
-      async function renderMermaidDiagrams() {
-        const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid, pre.language-mermaid code, pre.mermaid');
-
-        for (let i = 0; i < mermaidBlocks.length; i++) {
-          const codeEl = mermaidBlocks[i];
-          const preEl = codeEl.tagName.toLowerCase() === 'pre' ? codeEl : codeEl.parentElement;
-          const graphDefinition = codeEl.textContent || '';
-
-          if (!graphDefinition.trim()) continue;
-
-          const container = document.createElement('div');
-          container.className = 'mermaid-diagram my-6 p-4 rounded-2xl bg-[#090d16] border border-slate-800 flex justify-center overflow-x-auto shadow-xl';
-
-          try {
-            const { svg } = await mermaid.render(`mermaid-svg-${i}-${Date.now()}`, graphDefinition.trim());
-            container.innerHTML = svg;
-            if (preEl && preEl.parentNode) {
-              preEl.parentNode.replaceChild(container, preEl);
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+              darkMode: true,
+              background: '#090d16',
+              primaryColor: '#1e293b',
+              primaryTextColor: '#f8fafc',
+              primaryBorderColor: '#38bdf8',
+              lineColor: '#38bdf8',
+              secondaryColor: '#0f172a',
+              tertiaryColor: '#1e1b4b'
             }
-          } catch (err) {
-            console.error('Mermaid render error:', err);
-          }
-        }
-      }
+          });
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
-      } else {
-        renderMermaidDiagrams();
-      }
+          var blocks = document.querySelectorAll('pre[data-language="mermaid"], pre.language-mermaid, pre code.language-mermaid');
+          blocks.forEach(function(el, idx) {
+            var preEl = el.tagName.toLowerCase() === 'pre' ? el : el.parentElement;
+            var codeText = el.innerText || el.textContent || '';
+            if (!codeText.trim()) return;
+
+            var container = document.createElement('div');
+            container.className = 'mermaid-diagram my-6 p-6 rounded-2xl bg-[#090d16] border border-slate-800 flex justify-center overflow-x-auto shadow-xl';
+
+            mermaid.render('mermaid-id-' + idx + '-' + Date.now(), codeText.trim()).then(function(res) {
+              container.innerHTML = res.svg;
+              if (preEl && preEl.parentNode) {
+                preEl.parentNode.replaceChild(container, preEl);
+              }
+            }).catch(function(err) {
+              console.error('Mermaid parse error:', err);
+            });
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', renderMermaid);
+        } else {
+          renderMermaid();
+        }
+      })();
     </script>
   </body>
 </html>
