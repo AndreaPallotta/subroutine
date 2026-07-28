@@ -6,7 +6,7 @@ export const MobileCodeComparison: React.FC = () => {
     swift: {
       label: 'Swift (iOS Native)',
       ext: 'swift',
-      lang: 'clike',
+      lang: 'swift',
       code: `import UIKit
 import CoreMotion
 
@@ -42,7 +42,7 @@ class NativeSensorListener(private val sensorManager: SensorManager) : SensorEve
         sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_FASTEST)
     }
 
-    override onSensorChanged(event: SensorEvent?) {
+    override fun onSensorChanged(event: SensorEvent?) {
         val x = event?.values?.get(0) ?: 0f
         val y = event?.values?.get(1) ?: 0f
         println("X: $x, Y: $y")
@@ -73,7 +73,7 @@ export function MotionComponent() {
     flutter: {
       label: 'Flutter (Dart Engine)',
       ext: 'dart',
-      lang: 'go',
+      lang: 'dart',
       code: `import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 

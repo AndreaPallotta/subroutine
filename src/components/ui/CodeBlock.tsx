@@ -8,6 +8,8 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-swift';
+import 'prismjs/components/prism-dart';
 
 interface CodeBlockProps {
   code: string;
@@ -23,18 +25,34 @@ const PRISM_LANG_MAP: Record<string, string> = {
   go: 'go',
   rust: 'rust',
   ts: 'typescript',
+  typescript: 'typescript',
+  tsx: 'typescript',
+  swift: 'swift',
+  dart: 'dart',
+  kt: 'java',
+  kotlin: 'java',
 };
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, filename, langLabel }) => {
   const prismLangKey = PRISM_LANG_MAP[language] || 'clike';
 
   useEffect(() => {
-    Prism.highlightAll();
+    try {
+      Prism.highlightAll();
+    } catch (e) {
+      console.warn('Prism highlight error:', e);
+    }
   }, [code, language]);
 
-  const highlightedCode = Prism.languages[prismLangKey]
-    ? Prism.highlight(code, Prism.languages[prismLangKey], prismLangKey)
-    : code;
+  let highlightedCode = code;
+  try {
+    if (Prism.languages[prismLangKey]) {
+      highlightedCode = Prism.highlight(code, Prism.languages[prismLangKey], prismLangKey);
+    }
+  } catch (err) {
+    console.warn('Prism inline highlight failed, falling back to raw code:', err);
+    highlightedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 
   return (
     <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-[#0b0f19] shadow-2xl my-4">
