@@ -37,46 +37,58 @@ Select a stack (Native, React Native JSI, or Flutter Impeller) and click "Trace 
 
 ---
 
-## 3. Architecture Execution Flow
+## 3. Deep Architecture Comparison
 
 ```mermaid
-graph LR
-    Native["Swift / Kotlin Native"] --> Direct["Direct Platform Call (0ms)"] --> GPU1["Metal / Vulkan GPU"]
-    RN["React Native (JSI)"] --> JSI["Hermes JS + C++ JSI Bridge"] --> NativeUI["Native OS Views"] --> GPU2["Metal / Vulkan GPU"]
-    Flutter["Flutter (Dart)"] --> Engine["Dart AOT + Impeller C++ Engine"] --> GPU3["Direct GPU Canvas"]
+graph TD
+    subgraph Pure Native Architecture
+    SW["Swift / Kotlin App"] --> OS1["iOS / Android Platform Views"]
+    OS1 --> SCREEN1["Display Hardware"]
+    end
+
+    subgraph React Native Architecture
+    JS["JavaScript / Hermes Engine"] --> SHADOW["React Shadow Tree"]
+    SHADOW --> OS2["Native Platform Views"]
+    OS2 --> SCREEN2["Display Hardware"]
+    end
+
+    subgraph Flutter Architecture
+    DART["Dart Code"] --> IMP["Impeller / Skia GPU Engine"]
+    IMP --> SCREEN3["Display Hardware"]
+    end
 ```
 
 ---
 
-## 4. Code Comparison: Platform API Call Execution
+## 4. Code Comparison: Platform API Execution
 
-### Pure Native Swift (iOS)
+### 1. Pure Native Swift (iOS)
 ```swift
-// Native Swift: Direct execution on main thread with zero bridge overhead
 import UIKit
 import CoreMotion
 
+// Direct execution on native main thread with zero bridge overhead
 class NativeMotionManager {
     private let motionManager = CMMotionManager()
 
     func startUpdates() {
-        // Direct C/Swift FFI call into iOS CoreMotion kernel framework
         motionManager.startAccelerometerUpdates(to: .main) { data, error in
-            guard font = data else { return }
+            guard let data = data else { return }
             print("X: \(data.acceleration.x), Y: \(data.acceleration.y)")
         }
     }
 }
 ```
 
-### React Native TypeScript (Bridged)
+### 2. React Native TypeScript (JSI Bridged)
 ```typescript
-// React Native: Async invocation marshalled across JS Thread -> JSI C++ Bridge -> Native Thread
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
 
-function MotionComponent() {
+// Async invocation marshalled across JS Thread -> JSI C++ Bridge -> Native Thread
+export function MotionComponent() {
   useEffect(() => {
-    // Subscription sends async event bridge messages across JSI boundary
     const subscription = Accelerometer.addListener(data => {
       console.log(`X: ${data.x}, Y: ${data.y}`);
     });
@@ -87,12 +99,12 @@ function MotionComponent() {
 }
 ```
 
-### Flutter Dart (Custom Engine)
+### 3. Flutter Dart (Custom Engine)
 ```dart
-// Flutter: Directly calls Dart AOT compiled C++ engine bindings
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
+// Directly calls Dart AOT compiled C++ engine bindings
 class MotionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
