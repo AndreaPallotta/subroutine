@@ -9,6 +9,7 @@ featured: true
 ---
 
 import { BloomFilterVisualizer } from '../../components/visualizers/BloomFilterVisualizer';
+import { BloomFilterCodeComparison } from '../../components/visualizers/BloomFilterCodeComparison';
 import { Callout } from '../../components/ui/Callout';
 
 When handling billions of key-value lookups in high-throughput databases (like RocksDB, Apache Cassandra, PostgreSQL, and Google Bigtable), checking whether a key exists in disk storage before executing an expensive I/O operation is a major bottleneck.
@@ -43,15 +44,23 @@ Insert multiple keys to set bit positions. Then query a key that was NEVER added
 
 ```mermaid
 graph TD
-    KEY[Query Key] -- Apply k Hash Functions --> HASHES["Compute Bit Indices h1(x), h2(x)... hk(x)"]
-    HASHES -- Inspect Bit Array --> COND{Are ALL bits set to 1?}
-    COND -- No (At least one bit is 0) --> NO["DEFINITELY NOT IN SET (100% Certainty)"]
-    COND -- Yes (All bits are 1) --> MAYBE["MAYBE IN SET (Execute Disk/DB Index Lookup)"]
+    KEY["Query Key"] --> HASHES["Compute Bit Indices h1(x), h2(x)... hk(x)"]
+    HASHES --> COND{"Are ALL bits set to 1?"}
+    COND -->|No| NO["DEFINITELY NOT IN SET (100% Certainty - Bypass Disk)"]
+    COND -->|Yes| MAYBE["MAYBE IN SET (Execute Disk/DB Index Lookup)"]
 ```
 
 ---
 
-## 4. Probabilistic vs Exact Search Structures
+## 4. Multi-Language Implementation Code
+
+Compare production Bloom Filter implementations across **C++**, **Python**, **Java**, **Go**, **Rust**, and **TypeScript** below:
+
+<BloomFilterCodeComparison client:visible />
+
+---
+
+## 5. Probabilistic vs Exact Search Structures
 
 | Data Structure | Space per Element | Search Time | False Negative Rate | False Positive Rate | Primary Application |
 | :--- | :--- | :--- | :--- | :--- | :--- |
