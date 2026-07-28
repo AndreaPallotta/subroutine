@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Menu, X, Search, BookOpen, Layers, Cpu, Brain, Sparkles, ExternalLink, Atom } from 'lucide-react';
+import { Menu, X, Search, BookOpen, Layers, Cpu, Brain, Sparkles, ExternalLink, Atom, Network, ShieldCheck } from 'lucide-react';
 
 export interface ArticleNavItem {
   slug: string;
   title: string;
-  category: 'Algorithms' | 'Systems' | 'AI & ML' | 'Languages' | 'Physics & Math';
+  category: 'Algorithms' | 'Systems' | 'AI & ML' | 'Languages' | 'Physics & Math' | 'Networking' | 'Security' | 'Quantum';
   level: 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
@@ -16,16 +16,19 @@ interface SidebarNavigationProps {
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'Algorithms': <BookOpen className="w-4 h-4 text-cyan-400" />,
   'Systems': <Cpu className="w-4 h-4 text-amber-400" />,
+  'Networking': <Network className="w-4 h-4 text-blue-400" />,
+  'Security': <ShieldCheck className="w-4 h-4 text-indigo-400" />,
+  'Quantum': <Atom className="w-4 h-4 text-purple-400" />,
   'AI & ML': <Brain className="w-4 h-4 text-pink-400" />,
   'Languages': <Layers className="w-4 h-4 text-emerald-400" />,
-  'Physics & Math': <Atom className="w-4 h-4 text-purple-400" />,
+  'Physics & Math': <Atom className="w-4 h-4 text-teal-400" />,
 };
 
 export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, currentSlug = '' }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = ['Algorithms', 'Systems', 'AI & ML', 'Languages', 'Physics & Math'] as const;
+  const categories = ['Algorithms', 'Systems', 'Networking', 'Security', 'Quantum', 'AI & ML', 'Languages', 'Physics & Math'] as const;
 
   const filteredArticles = articles.filter(art => 
     art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
