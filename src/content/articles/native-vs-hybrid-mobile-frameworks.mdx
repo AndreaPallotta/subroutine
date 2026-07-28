@@ -37,66 +37,73 @@ Select a stack (Native, React Native JSI, or Flutter Impeller) and click "Trace 
 
 ---
 
-## 3. Deep Architecture Comparison
+## 3. Architecture Execution Flow
 
 ```mermaid
-graph TD
-    subgraph Pure Native Architecture
-    SW["Swift / Kotlin App"] --> OS1["iOS / Android Platform Views"]
-    OS1 --> SCREEN1["Display Hardware"]
-    end
-
-    subgraph React Native Architecture
-    JS["JavaScript / Hermes Engine"] --> SHADOW["React Shadow Tree"]
-    SHADOW --> OS2["Native Platform Views"]
-    OS2 --> SCREEN2["Display Hardware"]
-    end
-
-    subgraph Flutter Architecture
-    DART["Dart Code"] --> IMP["Impeller / Skia GPU Engine"]
-    IMP --> SCREEN3["Display Hardware"]
-    end
+graph LR
+    Native["Swift / Kotlin Native"] --> Direct["Direct Platform Call (0ms)"] --> GPU1["Metal / Vulkan GPU"]
+    RN["React Native (JSI)"] --> JSI["Hermes JS + C++ JSI Bridge"] --> NativeUI["Native OS Views"] --> GPU2["Metal / Vulkan GPU"]
+    Flutter["Flutter (Dart)"] --> Engine["Dart AOT + Impeller C++ Engine"] --> GPU3["Direct GPU Canvas"]
 ```
 
 ---
 
-## 4. Code Comparison: Native vs Hybrid Bridge Invocation
+## 4. Code Comparison: Platform API Call Execution
 
-### Native Swift (Direct Call)
+### Pure Native Swift (iOS)
 ```swift
+// Native Swift: Direct execution on main thread with zero bridge overhead
 import UIKit
-import CoreLocation
+import CoreMotion
 
-class NativeLocationManager: NSObject, CLLocationManagerDelegate {
-    private let locationManager = CLLocationManager()
-    
-    func requestLocation() {
-        // Direct execution on native thread with zero marshalling overhead
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+class NativeMotionManager {
+    private let motionManager = CMMotionManager()
+
+    func startUpdates() {
+        // Direct C/Swift FFI call into iOS CoreMotion kernel framework
+        motionManager.startAccelerometerUpdates(to: .main) { data, error in
+            guard font = data else { return }
+            print("X: \(data.acceleration.x), Y: \(data.acceleration.y)")
+        }
     }
 }
 ```
 
-### React Native JSI C++ Host Object
-```cpp
-// Hermes JSI C++ Host Object binding native methods directly to JS runtime
-#include <jsi/jsi.h>
+### React Native TypeScript (Bridged)
+```typescript
+// React Native: Async invocation marshalled across JS Thread -> JSI C++ Bridge -> Native Thread
+import { Accelerometer } from 'expo-sensors';
 
-void installNativeBridge(facebook::jsi::Runtime& runtime) {
-    auto locationFunc = facebook::jsi::Function::createFromHostFunction(
-        runtime,
-        facebook::jsi::PropNameID::forAscii(runtime, "requestLocation"),
-        0,
-        [](facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal, const facebook::jsi::Value* args, size_t count) {
-            // Asynchronous thread marshalling from JS thread to Native Main Thread
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [NativeLocationManager triggerLocationRequest];
-            });
-            return facebook::jsi::Value::undefined();
-        }
+function MotionComponent() {
+  useEffect(() => {
+    // Subscription sends async event bridge messages across JSI boundary
+    const subscription = Accelerometer.addListener(data => {
+      console.log(`X: ${data.x}, Y: ${data.y}`);
+    });
+    return () => subscription.remove();
+  }, []);
+
+  return <View />;
+}
+```
+
+### Flutter Dart (Custom Engine)
+```dart
+// Flutter: Directly calls Dart AOT compiled C++ engine bindings
+import 'package:flutter/material.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+
+class MotionWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AccelerometerEvent>(
+      stream: accelerometerEventStream(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return CircularProgressIndicator();
+        return Text("X: ${snapshot.data!.x}, Y: ${snapshot.data!.y}");
+      },
     );
-    runtime.global().setProperty(runtime, "requestLocation", locationFunc);
+  }
 }
 ```
 
