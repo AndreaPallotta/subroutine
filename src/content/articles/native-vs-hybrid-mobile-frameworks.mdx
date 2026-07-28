@@ -9,6 +9,7 @@ featured: true
 ---
 
 import { NativeVsHybridStackVisualizer } from '../../components/visualizers/NativeVsHybridStackVisualizer';
+import { MobileCodeComparison } from '../../components/visualizers/MobileCodeComparison';
 import { Callout } from '../../components/ui/Callout';
 
 When engineering high-scale mobile applications, developers face a core architectural choice: build pure **Native apps** (using Swift for iOS and Kotlin for Android) or adopt **Hybrid Cross-Platform frameworks** (such as React Native or Flutter).
@@ -62,62 +63,9 @@ graph TD
 
 ## 4. Code Comparison: Platform API Execution
 
-### 1. Pure Native Swift (iOS)
-```swift
-import UIKit
-import CoreMotion
+Compare side-by-side platform sensor stream implementations across **Swift (iOS)**, **Kotlin (Android)**, **React Native (TypeScript)**, and **Flutter (Dart)** below:
 
-// Direct execution on native main thread with zero bridge overhead
-class NativeMotionManager {
-    private let motionManager = CMMotionManager()
-
-    func startUpdates() {
-        motionManager.startAccelerometerUpdates(to: .main) { data, error in
-            guard let data = data else { return }
-            print("X: \(data.acceleration.x), Y: \(data.acceleration.y)")
-        }
-    }
-}
-```
-
-### 2. React Native TypeScript (JSI Bridged)
-```typescript
-import React, { useEffect } from 'react';
-import { View } from 'react-native';
-import { Accelerometer } from 'expo-sensors';
-
-// Async invocation marshalled across JS Thread -> JSI C++ Bridge -> Native Thread
-export function MotionComponent() {
-  useEffect(() => {
-    const subscription = Accelerometer.addListener(data => {
-      console.log(`X: ${data.x}, Y: ${data.y}`);
-    });
-    return () => subscription.remove();
-  }, []);
-
-  return <View />;
-}
-```
-
-### 3. Flutter Dart (Custom Engine)
-```dart
-import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-
-// Directly calls Dart AOT compiled C++ engine bindings
-class MotionWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<AccelerometerEvent>(
-      stream: accelerometerEventStream(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
-        return Text("X: ${snapshot.data!.x}, Y: ${snapshot.data!.y}");
-      },
-    );
-  }
-}
-```
+<MobileCodeComparison client:visible />
 
 ---
 
