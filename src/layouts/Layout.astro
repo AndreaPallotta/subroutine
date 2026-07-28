@@ -66,5 +66,56 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <slot />
       </main>
     </div>
+
+    <!-- Client-Side Mermaid Diagram Renderer -->
+    <script>
+      import mermaid from 'mermaid';
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: {
+          darkMode: true,
+          background: '#090d16',
+          primaryColor: '#1e293b',
+          primaryTextColor: '#f8fafc',
+          primaryBorderColor: '#334155',
+          lineColor: '#38bdf8',
+          secondaryColor: '#0f172a',
+          tertiaryColor: '#1e1b4b',
+        },
+      });
+
+      async function renderMermaidDiagrams() {
+        const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid, pre.language-mermaid code, pre.mermaid');
+
+        for (let i = 0; i < mermaidBlocks.length; i++) {
+          const codeEl = mermaidBlocks[i];
+          const preEl = codeEl.tagName.toLowerCase() === 'pre' ? codeEl : codeEl.parentElement;
+          const graphDefinition = codeEl.textContent || '';
+
+          if (!graphDefinition.trim()) continue;
+
+          const container = document.createElement('div');
+          container.className = 'mermaid-diagram my-6 p-4 rounded-2xl bg-[#090d16] border border-slate-800 flex justify-center overflow-x-auto shadow-xl';
+
+          try {
+            const { svg } = await mermaid.render(`mermaid-svg-${i}-${Date.now()}`, graphDefinition.trim());
+            container.innerHTML = svg;
+            if (preEl && preEl.parentNode) {
+              preEl.parentNode.replaceChild(container, preEl);
+            }
+          } catch (err) {
+            console.error('Mermaid render error:', err);
+          }
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
+      } else {
+        renderMermaidDiagrams();
+      }
+    </script>
   </body>
 </html>
