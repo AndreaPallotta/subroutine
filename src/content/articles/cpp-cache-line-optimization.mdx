@@ -8,7 +8,6 @@ tags: ["C++", "Performance", "Hardware", "Systems"]
 featured: false
 ---
 
-import { CodeBlock } from '../../components/ui/CodeBlock';
 import { CacheLineCodeComparison } from '../../components/visualizers/CacheLineCodeComparison';
 import { Callout } from '../../components/ui/Callout';
 
@@ -28,35 +27,11 @@ Modern x86_64 CPUs do not fetch single bytes from RAM - they load contiguous **6
 
 ## 2. Memory Stride: Row-Major vs. Column-Major
 
-Consider iterating over a $4096 \times 4096$ integer matrix:
+Consider iterating over a $4096 \times 4096$ integer matrix. 
 
-### Row-Major Access (Sequential / Cache-Friendly)
+Traversing memory sequentially (row-major order) allows the CPU hardware prefetcher to fetch adjacent 64-byte cache lines before they are requested, achieving maximum L1 cache hit rates.
 
-<CodeBlock
-  code={`// Contiguous memory reads -> Maximum L1 Cache Hit Rate
-for (int i = 0; i < N; ++i) {
-    for (int j = 0; j < N; ++j) {
-        sum += matrix[i][j]; 
-    }
-}`}
-  language="cpp"
-  filename="row_major.cpp"
-  langLabel="C++"
-/>
-
-### Column-Major Access (Strided / Cache Thrashing)
-
-<CodeBlock
-  code={`// Non-contiguous memory reads -> Constant L1 Cache Misses
-for (int j = 0; j < N; ++j) {
-    for (int i = 0; i < N; ++i) {
-        sum += matrix[i][j];
-    }
-}`}
-  language="cpp"
-  filename="column_major.cpp"
-  langLabel="C++"
-/>
+Conversely, strided iteration (column-major order) forces a full 64-byte cache line load for every single element access, thrashing the L1 cache.
 
 <Callout type="warning" title="Performance Penalty">
 Column-major iteration can be <strong>10× to 20× slower</strong> despite executing the exact same number of assembly instructions, purely due to CPU bus stall cycles waiting for main memory!
@@ -66,25 +41,13 @@ Column-major iteration can be <strong>10× to 20× slower</strong> despite execu
 
 ## 3. False Sharing & `alignas(64)` Optimization
 
-In multi-threaded C++11 code, two threads writing to adjacent variables in memory can degrade performance if both variables reside on the same cache line:
+In multi-threaded C++11 code, two threads writing to adjacent variables in memory can degrade performance if both variables reside on the same cache line.
 
-<CodeBlock
-  code={`// Struct padded and aligned to 64-byte cache line boundaries
-struct alignas(64) WorkerThreadMetrics {
-    uint64_t processed_items;
-    uint64_t error_count;
-    // Guaranteed to occupy its own isolated 64-byte cache line
-};`}
-  language="cpp"
-  filename="false_sharing_alignment.cpp"
-  langLabel="C++"
-/>
-
-Using `alignas(64)` guarantees that modifications by Thread 0 will never invalidate the L1 cache line of Thread 1 on a neighboring core!
+Using `alignas(64)` guarantees that modifications by Thread 0 will never invalidate the L1 cache line of Thread 1 on a neighboring core.
 
 ---
 
-## 4. Multi-Language Implementation Code
+## 4. Code Comparison: Memory Locality & Cache Alignment
 
 Compare production cache-alignment and memory-locality implementations across **C++**, **Rust**, **Java**, **Go**, and **Python** below:
 
