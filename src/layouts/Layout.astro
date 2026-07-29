@@ -10,11 +10,13 @@ interface Props {
   gaMeasurementId?: string;
 }
 
+const envGaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+
 const {
   title = 'Subroutine CS - Interactive Computer Science & Systems Blog',
   description = 'Subroutine CS (subroutine-cs.cc) is an interactive educational blog covering algorithms, low-level systems optimization, C++, networking, and computer architecture with audio-visual simulations.',
   currentSlug = '',
-  gaMeasurementId = 'G-MEASUREMENT_ID', // Replace with your GA4 Measurement ID
+  gaMeasurementId = envGaId || 'G-XXXXXXXXXX', // Set via PUBLIC_GA_MEASUREMENT_ID or passed prop
 } = Astro.props;
 
 const rawArticles = await getCollection('articles');
@@ -83,15 +85,17 @@ const jsonLdSchema = {
     <!-- JSON-LD Structured Data Schema -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />
 
-    <!-- Google Analytics (GA4) Tag -->
-    {gaMeasurementId && (
+    <!-- Google Analytics (GA4) Global Site Tag -->
+    {gaMeasurementId && gaMeasurementId !== 'G-XXXXXXXXXX' && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
         <script is:inline define:vars={{ gaMeasurementId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', gaMeasurementId);
+          gtag('config', gaMeasurementId, {
+            send_page_view: true
+          });
         </script>
       </>
     )}
