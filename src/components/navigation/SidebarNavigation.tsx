@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Search, BookOpen, Layers, Cpu, Brain, Sparkles, ExternalLink, Atom, Network, ShieldCheck } from 'lucide-react';
 
 export interface ArticleNavItem {
@@ -26,6 +26,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, currentSlug = '' }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const navScrollRef = useRef<HTMLDivElement | null>(null);
 
   const categories = ['Algorithms', 'Systems', 'Networking', 'Security', 'Physics & Math', 'AI & ML', 'Languages'] as const;
 
@@ -34,11 +35,40 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
     art.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Restore & Preserve Sidebar Scroll Position across page loads
+  useEffect(() => {
+    const savedScrollPos = sessionStorage.getItem('subroutine_sidebar_scroll');
+    if (navScrollRef.current) {
+      if (savedScrollPos !== null) {
+        navScrollRef.current.scrollTop = Number(savedScrollPos);
+      }
+      
+      // Auto-scroll active article into view if off-screen
+      const activeElement = navScrollRef.current.querySelector('[data-active="true"]');
+      if (activeElement) {
+        activeElement.scrollIntoView({ block: 'nearest', behavior: 'instant' as ScrollBehavior });
+      }
+    }
+  }, [currentSlug]);
+
+  const handleScroll = () => {
+    if (navScrollRef.current) {
+      sessionStorage.setItem('subroutine_sidebar_scroll', String(navScrollRef.current.scrollTop));
+    }
+  };
+
+  const handleLinkClick = () => {
+    if (navScrollRef.current) {
+      sessionStorage.setItem('subroutine_sidebar_scroll', String(navScrollRef.current.scrollTop));
+    }
+    setMobileOpen(false);
+  };
+
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-slate-950/95 border-r border-slate-800/80 text-slate-300">
+    <div className="flex flex-col h-full bg-slate-950/95 border-r border-slate-800/80 text-slate-300 font-sans">
       {/* Brand Header */}
       <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-3 group">
+        <a href="/" onClick={handleLinkClick} className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800/80 p-1.5 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 group-hover:border-cyan-500/50 transition-all">
             <img src="/favicon.svg" alt="Subroutine Logo" className="w-full h-full object-contain" />
           </div>
@@ -64,7 +94,7 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
-            placeholder="Search articles..."
+            placeholder="Search sidebar articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
@@ -72,12 +102,18 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
         </div>
       </div>
 
-      {/* Nav List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      {/* Nav List with Preserved Scroll */}
+      <div
+        ref={navScrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-800"
+      >
         <div>
           <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-2 px-2">Navigation</div>
           <a
             href="/"
+            onClick={handleLinkClick}
+            data-active={currentSlug === ''}
             className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
               currentSlug === '' 
                 ? 'bg-gradient-to-r from-indigo-600/30 to-cyan-600/20 text-cyan-300 border border-cyan-500/30 font-bold'
@@ -85,7 +121,7 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
             }`}
           >
             <Sparkles className="w-4 h-4 text-indigo-400" />
-            <span>Interactive Playground</span>
+            <span>Interactive Blog</span>
           </a>
         </div>
 
@@ -117,6 +153,8 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
                       <a
                         key={art.slug}
                         href={`/articles/${art.slug}`}
+                        onClick={handleLinkClick}
+                        data-active={isActive}
                         className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs transition-all ${
                           isActive
                             ? 'bg-indigo-900/40 text-cyan-300 border border-indigo-500/40 font-semibold shadow-inner'
