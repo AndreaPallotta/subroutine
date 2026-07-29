@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
 import { SidebarNavigation, type ArticleNavItem } from '../components/navigation/SidebarNavigation';
+import Footer from '../components/navigation/Footer.astro';
 
 interface Props {
   title?: string;
@@ -60,9 +61,10 @@ const jsonLdSchema = {
     <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="sazdq0wR9lArF-dhJ3HU9AzwxT7qdY0YtMBKLlFpSrU" />
 
-    <!-- SEO Canonical & Sitemap Links -->
+    <!-- SEO Canonical, Sitemap, & RSS Links -->
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Subroutine CS RSS Feed" href="/rss.xml" />
 
     <!-- Open Graph / Facebook / LinkedIn Cards -->
     <meta property="og:type" content="website" />
@@ -111,10 +113,13 @@ const jsonLdSchema = {
     <SidebarNavigation client:load articles={articles} currentSlug={currentSlug} />
 
     {/* Main Content Area */}
-    <div class="md:pl-72 min-h-screen flex flex-col">
+    <div class="md:pl-72 min-h-screen flex flex-col justify-between">
       <main class="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-6 md:py-10">
         <slot />
       </main>
+
+      {/* Footer Component */}
+      <Footer />
     </div>
 
     <!-- Client-Side Mermaid Diagram Inline Renderer -->
