@@ -8,6 +8,7 @@ tags: ["C++", "Performance", "Hardware", "Systems"]
 featured: false
 ---
 
+import { CodeBlock } from '../../components/ui/CodeBlock';
 import { CacheLineCodeComparison } from '../../components/visualizers/CacheLineCodeComparison';
 import { Callout } from '../../components/ui/Callout';
 
@@ -25,16 +26,66 @@ Modern x86_64 CPUs do not fetch single bytes from RAM - they load contiguous **6
 
 ---
 
-## 2. Memory Stride & Cache Line Alignment Code
+## 2. Memory Stride: Row-Major vs. Column-Major
+
+Consider iterating over a $4096 \times 4096$ integer matrix:
+
+### Row-Major Access (Sequential / Cache-Friendly)
+
+<CodeBlock
+  code={`// Contiguous memory reads -> Maximum L1 Cache Hit Rate
+for (int i = 0; i < N; ++i) {
+    for (int j = 0; j < N; ++j) {
+        sum += matrix[i][j]; 
+    }
+}`}
+  language="cpp"
+  filename="row_major.cpp"
+  langLabel="C++"
+/>
+
+### Column-Major Access (Strided / Cache Thrashing)
+
+<CodeBlock
+  code={`// Non-contiguous memory reads -> Constant L1 Cache Misses
+for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < N; ++i) {
+        sum += matrix[i][j];
+    }
+}`}
+  language="cpp"
+  filename="column_major.cpp"
+  langLabel="C++"
+/>
+
+<Callout type="warning" title="Performance Penalty">
+Column-major iteration can be <strong>10× to 20× slower</strong> despite executing the exact same number of assembly instructions, purely due to CPU bus stall cycles waiting for main memory!
+</Callout>
+
+---
+
+## 3. False Sharing & `alignas(64)` Optimization
+
+In multi-threaded C++11 code, two threads writing to adjacent variables in memory can degrade performance if both variables reside on the same cache line:
+
+<CodeBlock
+  code={`// Struct padded and aligned to 64-byte cache line boundaries
+struct alignas(64) WorkerThreadMetrics {
+    uint64_t processed_items;
+    uint64_t error_count;
+    // Guaranteed to occupy its own isolated 64-byte cache line
+};`}
+  language="cpp"
+  filename="false_sharing_alignment.cpp"
+  langLabel="C++"
+/>
+
+Using `alignas(64)` guarantees that modifications by Thread 0 will never invalidate the L1 cache line of Thread 1 on a neighboring core!
+
+---
+
+## 4. Multi-Language Implementation Code
 
 Compare production cache-alignment and memory-locality implementations across **C++**, **Rust**, **Java**, **Go**, and **Python** below:
 
 <CacheLineCodeComparison client:visible />
-
----
-
-## 3. Performance Impact Analysis
-
-<Callout type="warning" title="Performance Penalty">
-Column-major matrix iteration or unaligned thread structures can be <strong>10× to 20× slower</strong> despite executing the exact same number of assembly instructions, purely due to CPU bus stall cycles waiting for main memory!
-</Callout>
