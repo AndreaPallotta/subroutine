@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Clock, ArrowRight, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Clock, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface ArticleCardData {
   slug: string;
@@ -14,13 +14,20 @@ export interface ArticleCardData {
 
 interface ArticleSearchFeedProps {
   articles: ArticleCardData[];
+  itemsPerPage?: number;
 }
 
 const CATEGORIES = ['All', 'Algorithms', 'Systems', 'AI & ML', 'Languages', 'Physics & Math', 'Networking', 'Security'];
 
-export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles }) => {
+export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles, itemsPerPage = 8 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to Page 1 whenever search term or category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
   const filteredArticles = useMemo(() => {
     return articles.filter((art) => {
@@ -36,6 +43,13 @@ export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles }
       return matchesCategory && (matchesTitle || matchesSummary || matchesCategoryName || matchesTags);
     });
   }, [articles, searchTerm, selectedCategory]);
+
+  // Pagination Math
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
+  const paginatedArticles = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    return filteredArticles.slice(startIdx, startIdx + itemsPerPage);
+  }, [filteredArticles, currentPage, itemsPerPage]);
 
   return (
     <div className="space-y-6 font-sans">
@@ -92,7 +106,7 @@ export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles }
       </div>
 
       {/* Article Cards Grid */}
-      {filteredArticles.length === 0 ? (
+      {paginatedArticles.length === 0 ? (
         <div className="p-12 text-center bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-2">
           <p className="text-slate-300 font-bold text-sm">No matching articles found</p>
           <p className="text-xs text-slate-500 font-mono">Try searching another keyword like "C++", "epoll", "sorting", or reset the category filter.</p>
@@ -105,7 +119,7 @@ export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles }
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredArticles.map((article) => {
+          {paginatedArticles.map((article) => {
             const badgeClass =
               article.level === 'Beginner' ? 'badge-beginner' :
               article.level === 'Intermediate' ? 'badge-intermediate' : 'badge-advanced';
@@ -148,6 +162,32 @@ export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles }
           })}
         </div>
       )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-6 border-t border-slate-800/80 font-mono text-xs text-slate-400">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:text-white disabled:opacity-40 disabled:hover:text-slate-400 transition-all"
+          >
+            <ChevronLeft className="w-4 h-4" /> Previous
+          </button>
+
+          <span className="text-slate-300">
+            Page <span className="text-cyan-400 font-bold">{currentPage}</span> of {totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:text-white disabled:opacity-40 disabled:hover:text-slate-400 transition-all"
+          >
+            Next <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
     </div>
   );
 };
