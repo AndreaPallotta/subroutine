@@ -42,15 +42,15 @@ Scale connection count to 10,000 sockets. Watch `select` flood the CPU with sysc
 
 ```mermaid
 graph TD
-    subgraph POSIX select/poll
-    A1[App User Space] -- 1. Syscall pass 10,000 FDs --> K1[Kernel Array Scan O-N]
-    K1 -- 2. Copy active ready list --> A1
+    subgraph Select["POSIX select / poll"]
+    A1["App User Space"] -->|"1. Syscall 10k FDs"| K1["Kernel Array Scan O(N)"]
+    K1 -->|"2. Copy Active List"| A1
     end
 
-    subgraph Linux io_uring Ring
-    U2[App User Space] -- Push SQEs to Shared Ring --> SQ[Submission Queue Ring]
-    SQ -- Kernel Thread Polling (SQPOLL) --> CQ[Completion Queue Ring]
-    CQ -- Read CQEs (0 Syscalls) --> U2
+    subgraph Uring["Linux io_uring Ring"]
+    U2["App User Space"] -->|"Push SQEs"| SQ["Submission Queue Ring"]
+    SQ -->|"SQPOLL Kernel Thread"| CQ["Completion Queue Ring"]
+    CQ -->|"Read CQEs (0 Syscalls)"| U2
     end
 ```
 

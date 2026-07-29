@@ -44,17 +44,17 @@ Step through the PTP packet exchange sequence (Sync ➔ Follow_Up ➔ Delay_Req 
 
 ```mermaid
 graph TD
-    subgraph Master Clock (Grandmaster)
-    M[PTP Master] -- 1. Hardware Timestamp t1 --> NIC1[Master NIC Hardware]
-    NIC1 -- SYNC Packet --> NET[Physical Wire / Switch]
-    M -- 2. FOLLOW_UP (Contains t1) --> NET
+    subgraph Master["Master Clock (Grandmaster)"]
+    M["PTP Master"] -->|"1. Hardware Timestamp t1"| NIC1["Master NIC Hardware"]
+    NIC1 -->|"SYNC Packet"| NET["Physical Wire / Switch"]
+    M -->|"2. FOLLOW_UP (Contains t1)"| NET
     end
 
-    subgraph Slave Clock
-    NET -- Hardware Timestamp t2 --> NIC2[Slave NIC Hardware]
-    NIC2 -- 3. Delay_Req (t3) --> NET
-    NET -- 4. Delay_Resp (t4) --> NIC2
-    NIC2 -- 5. Calculate Offset theta & Delay delta --> S[Slave Clock Adjust]
+    subgraph Slave["Slave Clock Protocol"]
+    NET -->|"Hardware Timestamp t2"| NIC2["Slave NIC Hardware"]
+    NIC2 -->|"3. Delay_Req (t3)"| NET
+    NET -->|"4. Delay_Resp (t4)"| NIC2
+    NIC2 -->|"5. Calculate Offset & Delay"| S["Slave Clock Adjust"]
     end
 ```
 

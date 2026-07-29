@@ -42,13 +42,9 @@ Run **std::mutex Queue** to watch thread lock contention accumulate. Then switch
 
 ```mermaid
 graph LR
-    subgraph Producer Thread (Core 0)
-    P[Write Item to Buffer[head]] -- 1. Store Release --> H[std::atomic<size_t> head]
-    end
-
-    subgraph Consumer Thread (Core 1)
-    T[std::atomic<size_t> tail] -- 2. Load Acquire --> C[Read Item from Buffer[tail]]
-    end
+    P["Producer Thread"] -->|"1. Fetch Tail Index"| CAS["Atomic CAS / Acquire-Release"]
+    CAS -->|"2. Write Data"| BUF["Ring Buffer Array"]
+    BUF -->|"3. Fetch Head Index"| C["Consumer Thread"]
 ```
 
 ---

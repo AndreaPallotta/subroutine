@@ -42,17 +42,17 @@ Increase packet loss to 30% and switch between TCP (watch retransmissions & stal
 
 ```mermaid
 graph TD
-    subgraph TCP Unicast
-    A1[Sender] -- 1. Packet #1 --> B1[Receiver]
-    A1 -- 2. Drop #2 (Stall) --> B1
-    A1 -- 3. Retransmit #2 --> B1
+    subgraph Unicast["Unicast TCP / UDP"]
+    PUB1["Publisher"] -->|"Separate Packet per Client"| R1["Receiver 1"]
+    PUB1 -->|"Duplicate Packet"| R2["Receiver 2"]
+    PUB1 -->|"Duplicate Packet"| R3["Receiver 3"]
     end
 
-    subgraph IP Multicast PIM Tree
-    P1[Publisher] -- 1. Single Packet --> SW[Hardware Switch]
-    SW -- Duplicate Packet --> R1[Subscriber A]
-    SW -- Duplicate Packet --> R2[Subscriber B]
-    SW -- Duplicate Packet --> R3[Subscriber C]
+    subgraph Multicast["IP Multicast (IGMP / PIM-SM)"]
+    PUB2["Publisher"] -->|"Single Packet to Switch"| SW["Hardware Switch"]
+    SW -->|"Hardware Packet Copy"| R4["Receiver 1"]
+    SW -->|"Hardware Packet Copy"| R5["Receiver 2"]
+    SW -->|"Hardware Packet Copy"| R6["Receiver 3"]
     end
 ```
 

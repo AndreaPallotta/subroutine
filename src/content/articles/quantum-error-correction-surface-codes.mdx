@@ -42,13 +42,13 @@ Inject Pauli X or Z noise to trigger Ancilla Stabilizers, then run the **MWPM De
 
 ```mermaid
 graph TD
-    subgraph 2D Surface Code Lattice
-    D1[Data Qubit D0] --- A1[Ancilla Stabilizer A0]
-    D2[Data Qubit D1] --- A1
-    D3[Data Qubit D2] --- A2[Ancilla Stabilizer A1]
-    D4[Data Qubit D3] --- A2
-    A1 -- Syndrome Extraction --> MWPM[Minimum Weight Perfect Matching Decoder]
-    MWPM -- Apply Pauli Recovery --> D1
+    subgraph Surface["2D Surface Code Lattice"]
+    D1["Data Qubit D0"] --- A1["Ancilla Stabilizer A0"]
+    D2["Data Qubit D1"] --- A1
+    D3["Data Qubit D2"] --- A2["Ancilla Stabilizer A1"]
+    D4["Data Qubit D3"] --- A2
+    A1 -->|"Syndrome Extraction"| MWPM["MWPM Decoder"]
+    MWPM -->|"Apply Pauli Recovery"| D1
     end
 ```
 

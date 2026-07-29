@@ -40,19 +40,19 @@ Select Kerberos or Mutual TLS (mTLS) and click "Next Step" to trace how tickets 
 
 ```mermaid
 graph TD
-    subgraph Kerberos Ticket Flow
-    C[Client] -- 1. AS-REQ --> KDC[KDC Key Center]
-    KDC -- 2. Ticket Granting Ticket TGT --> C
-    C -- 3. TGS-REQ + TGT --> KDC
-    KDC -- 4. Service Ticket ST --> C
-    C -- 5. AP-REQ + ST --> S[App Server]
+    subgraph Kerberos["Kerberos Ticket Flow"]
+    C["Client"] -->|"1. AS-REQ"| KDC["KDC Key Center"]
+    KDC -->|"2. TGT Ticket"| C
+    C -->|"3. TGS-REQ + TGT"| KDC
+    KDC -->|"4. Service Ticket ST"| C
+    C -->|"5. AP-REQ + ST"| S["App Server"]
     end
 
-    subgraph Mutual TLS (mTLS) Flow
-    C2[Client] -- 1. Client Hello + Client Cert --> S2[App Server]
-    S2 -- 2. Server Hello + Verify Cert --> C2
-    C2 -- 3. Cert Signature Proof --> S2
-    S2 -- 4. mTLS Tunnel Established --> C2
+    subgraph mTLS["Mutual TLS (mTLS) Flow"]
+    C2["Client"] -->|"1. Client Hello + Client Cert"| S2["App Server"]
+    S2 -->|"2. Server Hello + Verify Cert"| C2
+    C2 -->|"3. Cert Signature Proof"| S2
+    S2 -->|"4. mTLS Tunnel Established"| C2
     end
 ```
 

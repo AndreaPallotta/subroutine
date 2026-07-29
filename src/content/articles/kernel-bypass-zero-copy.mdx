@@ -42,14 +42,14 @@ Run <strong>POSIX Syscall</strong> and watch the context switch counter jump to 
 
 ```mermaid
 graph TD
-    subgraph Traditional POSIX Syscall
-    U1[User Space App] -- 1. Copy Data --> K1[Kernel Socket Buffer]
-    K1 -- 2. Context Switch (Syscall) --> K2[Linux TCP/IP Stack]
-    K2 -- 3. Copy Data --> N1[NIC Hardware Driver]
+    subgraph Standard["Standard Kernel Socket I/O"]
+    NIC1["NIC Hardware"] -->|"Interrupt"| K1["Kernel Ring Buffer"]
+    K1 -->|"Context Switch (Syscall)"| APP1["User App Buffer"]
     end
 
-    subgraph io_uring Zero-Copy
-    U2[User Space App] -- Shared Ring Buffer (DMA) --> N2[NIC Hardware Driver]
+    subgraph DPDK["Kernel Bypass (DPDK / AF_XDP)"]
+    NIC2["NIC Hardware"] -->|"Direct DMA Write (Zero-Copy)"| UMEM["Shared UMEM Hugepages"]
+    UMEM -->|"Poll Loop (0 Syscalls)"| APP2["User App Process"]
     end
 ```
 
