@@ -7,12 +7,14 @@ interface Props {
   title?: string;
   description?: string;
   currentSlug?: string;
+  gaMeasurementId?: string;
 }
 
 const {
-  title = 'Subroutine // Interactive CS & Programming Playground',
-  description = 'An interactive educational platform for algorithms, low-level systems, C++ optimization, and AI with audio-visual simulations.',
+  title = 'Subroutine CS (subroutine-cs.cc) // Interactive Computer Science & Systems Playground',
+  description = 'Subroutine CS (subroutine-cs.cc) is an interactive educational playground for computer science, low-level systems optimization, C++, networking, and algorithms.',
   currentSlug = '',
+  gaMeasurementId = 'G-MEASUREMENT_ID', // Replace with your GA4 Measurement ID
 } = Astro.props;
 
 const rawArticles = await getCollection('articles');
@@ -24,6 +26,24 @@ const articles: ArticleNavItem[] = rawArticles.map(art => ({
 }));
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const jsonLdSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Subroutine CS",
+  "alternateName": ["subroutine-cs", "subroutine-cs.cc", "Subroutine", "Subroutine Computer Science"],
+  "url": "https://subroutine-cs.cc/",
+  "description": description,
+  "author": {
+    "@type": "Person",
+    "name": "Andrea Pallotta",
+    "url": "https://andreapallotta.dev"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Andrea Pallotta"
+  }
+};
 ---
 
 <!DOCTYPE html>
@@ -33,18 +53,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="keywords" content="subroutine-cs, subroutine-cs.cc, subroutine cs, subroutine, computer science playground, algorithms visualizer, low level systems, C++ optimization, interactive CS" />
+    <meta name="author" content="Andrea Pallotta" />
+    <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="sazdq0wR9lArF-dhJ3HU9AzwxT7qdY0YtMBKLlFpSrU" />
 
     <!-- SEO Canonical & Sitemap Links -->
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <!-- Open Graph & Social Cards -->
+    <!-- Open Graph / Facebook / LinkedIn Cards -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Subroutine CS (subroutine-cs.cc)" />
+
+    <!-- Twitter Cards -->
     <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
 
@@ -52,6 +79,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- JSON-LD Structured Data Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />
+
+    <!-- Google Analytics (GA4) Tag -->
+    {gaMeasurementId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+        <script is:inline define:vars={{ gaMeasurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaMeasurementId);
+        </script>
+      </>
+    )}
 
     <!-- KaTeX CSS for math typesetting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
