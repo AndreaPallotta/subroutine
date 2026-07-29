@@ -11,8 +11,8 @@ interface Props {
 }
 
 const {
-  title = 'Subroutine CS (subroutine-cs.cc) // Interactive Computer Science & Systems Playground',
-  description = 'Subroutine CS (subroutine-cs.cc) is an interactive educational playground for computer science, low-level systems optimization, C++, networking, and algorithms.',
+  title = 'Subroutine CS - Interactive Computer Science & Systems Blog',
+  description = 'Subroutine CS (subroutine-cs.cc) is an interactive educational blog covering algorithms, low-level systems optimization, C++, networking, and computer architecture with audio-visual simulations.',
   currentSlug = '',
   gaMeasurementId = 'G-MEASUREMENT_ID', // Replace with your GA4 Measurement ID
 } = Astro.props;
@@ -31,7 +31,7 @@ const jsonLdSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Subroutine CS",
-  "alternateName": ["subroutine-cs", "subroutine-cs.cc", "Subroutine", "Subroutine Computer Science"],
+  "alternateName": ["subroutine-cs", "subroutine-cs.cc", "Subroutine", "Subroutine CS Blog", "Subroutine Computer Science"],
   "url": "https://subroutine-cs.cc/",
   "description": description,
   "author": {
@@ -53,7 +53,7 @@ const jsonLdSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content="subroutine-cs, subroutine-cs.cc, subroutine cs, subroutine, computer science playground, algorithms visualizer, low level systems, C++ optimization, interactive CS" />
+    <meta name="keywords" content="subroutine-cs, subroutine-cs.cc, subroutine cs, subroutine, computer science blog, algorithms visualizer, low level systems, C++ optimization, interactive CS" />
     <meta name="author" content="Andrea Pallotta" />
     <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="sazdq0wR9lArF-dhJ3HU9AzwxT7qdY0YtMBKLlFpSrU" />
@@ -67,7 +67,7 @@ const jsonLdSchema = {
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="Subroutine CS (subroutine-cs.cc)" />
+    <meta property="og:site_name" content="Subroutine CS - Interactive Computer Science & Systems Blog" />
 
     <!-- Twitter Cards -->
     <meta property="twitter:card" content="summary_large_image" />
