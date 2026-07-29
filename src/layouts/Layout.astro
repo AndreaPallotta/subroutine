@@ -16,7 +16,7 @@ const {
   title = 'Subroutine CS - Interactive Computer Science & Systems Blog',
   description = 'Subroutine CS (subroutine-cs.cc) is an interactive educational blog covering algorithms, low-level systems optimization, C++, networking, and computer architecture with audio-visual simulations.',
   currentSlug = '',
-  gaMeasurementId = envGaId || 'G-XXXXXXXXXX', // Set via PUBLIC_GA_MEASUREMENT_ID or passed prop
+  gaMeasurementId = envGaId || 'G-M9CEN2K5SH', // Production Google Analytics 4 Measurement ID
 } = Astro.props;
 
 const rawArticles = await getCollection('articles');
@@ -86,7 +86,7 @@ const jsonLdSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />
 
     <!-- Google Analytics (GA4) Global Site Tag -->
-    {gaMeasurementId && gaMeasurementId !== 'G-XXXXXXXXXX' && (
+    {gaMeasurementId && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
         <script is:inline define:vars={{ gaMeasurementId }}>
