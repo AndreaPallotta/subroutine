@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Search, BookOpen, Layers, Cpu, Brain, Sparkles, ExternalLink, Atom, Network, ShieldCheck } from 'lucide-react';
+import { Menu, X, Search, BookOpen, Layers, Cpu, Brain, Sparkles, ExternalLink, Atom, Network, ShieldCheck, Blocks } from 'lucide-react';
 
 export interface ArticleNavItem {
   slug: string;
   title: string;
-  category: 'Algorithms' | 'Systems' | 'AI & ML' | 'Languages' | 'Physics & Math' | 'Networking' | 'Security';
+  category: 'Algorithms' | 'Systems' | 'AI & ML' | 'Languages' | 'Physics & Math' | 'Networking' | 'Security' | 'Web3 & Crypto';
   level: 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
@@ -18,6 +18,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'Systems': <Cpu className="w-4 h-4 text-amber-400" />,
   'Networking': <Network className="w-4 h-4 text-blue-400" />,
   'Security': <ShieldCheck className="w-4 h-4 text-indigo-400" />,
+  'Web3 & Crypto': <Blocks className="w-4 h-4 text-orange-400" />,
   'Physics & Math': <Atom className="w-4 h-4 text-purple-400" />,
   'AI & ML': <Brain className="w-4 h-4 text-pink-400" />,
   'Languages': <Layers className="w-4 h-4 text-emerald-400" />,
@@ -28,7 +29,7 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ articles, 
   const [searchQuery, setSearchQuery] = useState('');
   const navScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const categories = ['Algorithms', 'Systems', 'Networking', 'Security', 'Physics & Math', 'AI & ML', 'Languages'] as const;
+  const categories = ['Algorithms', 'Systems', 'Networking', 'Security', 'Web3 & Crypto', 'Physics & Math', 'AI & ML', 'Languages'] as const;
 
   const filteredArticles = articles.filter(art => 
     art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

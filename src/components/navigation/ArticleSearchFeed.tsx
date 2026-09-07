@@ -17,7 +17,7 @@ interface ArticleSearchFeedProps {
   itemsPerPage?: number;
 }
 
-const CATEGORIES = ['All', 'Algorithms', 'Systems', 'AI & ML', 'Languages', 'Physics & Math', 'Networking', 'Security'];
+const CATEGORIES = ['All', 'Algorithms', 'Systems', 'Networking', 'Security', 'Web3 & Crypto', 'Physics & Math', 'AI & ML', 'Languages'];
 
 export const ArticleSearchFeed: React.FC<ArticleSearchFeedProps> = ({ articles, itemsPerPage = 8 }) => {
   const [searchTerm, setSearchTerm] = useState('');
