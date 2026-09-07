@@ -1,0 +1,181 @@
+---
+title: "The Crank-Nicolson Method: Unconditionally Stable PDE Integration"
+summary: "Solving parabolic partial differential equations with second-order temporal accuracy, implicit finite-difference discretization, and tridiagonal matrix solvers."
+category: "Physics & Math"
+level: "Advanced"
+date: 2026-09-07
+tags: ["Physics & Math", "Numerical Methods", "Differential Equations", "Linear Algebra", "Rust", "Python"]
+featured: true
+---
+
+import { TabbedCodeBlock } from '../../components/ui/TabbedCodeBlock';
+import { Callout } from '../../components/ui/Callout';
+
+export const pdeSnippets = {
+  rust: {
+    label: 'Rust (Thomas Algorithm Solver)',
+    ext: 'rs',
+    lang: 'rust',
+    filename: 'crank_nicolson.rs',
+    code: `pub fn solve_tridiagonal(
+    a: &[f64], // sub-diagonal (size N-1)
+    b: &[f64], // main diagonal (size N)
+    c: &[f64], // super-diagonal (size N-1)
+    d: &[f64], // right-hand side vector (size N)
+) -> Vec<f64> {
+    let n = b.len();
+    let mut c_prime = vec![0.0; n - 1];
+    let mut d_prime = vec![0.0; n];
+    let mut x = vec![0.0; n];
+
+    c_prime[0] = c[0] / b[0];
+    d_prime[0] = d[0] / b[0];
+
+    for i in 1..n - 1 {
+        let denom = b[i] - a[i - 1] * c_prime[i - 1];
+        c_prime[i] = c[i] / denom;
+        d_prime[i] = (d[i] - a[i - 1] * d_prime[i - 1]) / denom;
+    }
+
+    let denom = b[n - 1] - a[n - 2] * c_prime[n - 2];
+    d_prime[n - 1] = (d[n - 1] - a[n - 2] * d_prime[n - 2]) / denom;
+
+    x[n - 1] = d_prime[n - 1];
+    for i in (0..n - 1).rev() {
+        x[i] = d_prime[i] - c_prime[i] * x[i + 1];
+    }
+
+    x
+}`
+  },
+  python: {
+    label: 'Python (NumPy Crank-Nicolson)',
+    ext: 'py',
+    lang: 'python',
+    filename: 'crank_nicolson.py',
+    code: `import numpy as np
+from scipy.linalg import solve_banded
+
+def crank_nicolson_step(u, r):
+    n = len(u)
+    main_diag = (1.0 + r) * np.ones(n)
+    off_diag = (-r / 2.0) * np.ones(n - 1)
+    ab = np.zeros((3, n))
+    ab[0, 1:] = off_diag
+    ab[1, :] = main_diag
+    ab[2, :-1] = off_diag
+
+    d = np.zeros(n)
+    d[0] = u[0]
+    d[-1] = u[-1]
+    for i in range(1, n - 1):
+        d[i] = (r / 2.0) * u[i - 1] + (1.0 - r) * u[i] + (r / 2.0) * u[i + 1]
+
+    return solve_banded((1, 1), ab, d)`
+  }
+};
+
+Parabolic partial differential equations govern many natural and financial systems, from the flow of heat through turbine blades and chemical concentration gradients to the diffusion of probability density in the Black-Scholes option pricing model.
+
+The canonical 1D diffusion equation is formulated as:
+
+$$\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$$
+
+where $u(x, t)$ is the field variable and $\alpha$ is the thermal diffusivity coefficient.
+
+While explicit time integration methods (such as Forward Euler) are computationally straightforward, they suffer from a crippling stability constraint: any time step exceeding a tiny fraction of the spatial grid size causes exponential numerical explosion.
+
+The **Crank-Nicolson method**, formulated by John Crank and Phyllis Nicolson in 1947, resolves this by employing a centered implicit-explicit finite difference scheme that is **unconditionally stable** for all step sizes.
+
+---
+
+## 1. Mathematical Formulation
+
+Standard explicit schemes evaluate spatial derivatives exclusively at time step $n$. Fully implicit backward schemes evaluate them exclusively at time step $n + 1$.
+
+Crank-Nicolson computes the average of the central differences at time $n$ and $n + 1$:
+
+$$\frac{u_i^{n+1} - u_i^n}{\Delta t} = \frac{\alpha}{2} \left[ \frac{u_{i+1}^{n+1} - 2u_i^{n+1} + u_{i-1}^{n+1}}{\Delta x^2} + \frac{u_{i+1}^n - 2u_i^n + u_{i-1}^n}{\Delta x^2} \right]$$
+
+Defining the dimensionless mesh ratio $r = \frac{\alpha \Delta t}{\Delta x^2}$, we rearrange terms into unknowns at time $n + 1$ on the left, and known values at time $n$ on the right:
+
+$$-\frac{r}{2} u_{i-1}^{n+1} + (1 + r) u_i^{n+1} - \frac{r}{2} u_{i+1}^{n+1} = \frac{r}{2} u_{i-1}^n + (1 - r) u_i^n + \frac{r}{2} u_{i+1}^n$$
+
+---
+
+## 2. Comparison of Finite Difference Schemes
+
+| Scheme | Time Discretization | Truncation Error | Stability Criterion | Matrix Solve Required |
+| :--- | :--- | :--- | :--- | :--- |
+| **Forward Euler (FTCS)** | Explicit ($t_n$) | $O(\Delta t + \Delta x^2)$ | Conditionally stable ($r \le 1/2$) | No ($O(N)$ vector update) |
+| **Backward Euler (BTCS)** | Implicit ($t_{n+1}$) | $O(\Delta t + \Delta x^2)$ | Unconditionally stable ($r > 0$) | Yes ($O(N)$ tridiagonal) |
+| **Crank-Nicolson** | Implicit Average ($t_{n + 1/2}$) | $O(\Delta t^2 + \Delta x^2)$ | Unconditionally stable ($r > 0$) | Yes ($O(N)$ tridiagonal) |
+
+---
+
+## 3. Von Neumann Stability Analysis
+
+To prove stability, we assume Fourier mode errors of the form $u_j^n = \xi^n e^{i k j \Delta x}$, where $\xi$ is the amplification factor and $k$ is the spatial wave number.
+
+Substituting into the Crank-Nicolson relation yields:
+
+$$\xi = \frac{1 - r (1 - \cos(k \Delta x))}{1 + r (1 - \cos(k \Delta x))}$$
+
+Using the trigonometric identity $1 - \cos(\theta) = 2 \sin^2(\theta / 2)$:
+
+$$\xi = \frac{1 - 2r \sin^2(k \Delta x / 2)}{1 + 2r \sin^2(k \Delta x / 2)}$$
+
+Because $r > 0$ and $\sin^2(\theta) \ge 0$, the denominator is strictly greater than or equal to the numerator. Therefore:
+
+$$|\xi| \le 1 \quad \forall r > 0, \quad \forall k$$
+
+The amplification factor never exceeds unity regardless of the time step $\Delta t$, mathematically proving unconditional stability.
+
+---
+
+## 4. Solving the Tridiagonal System in $O(N)$ Time
+
+Because each row depends only on nodes $i-1$, $i$, and $i+1$, the coefficient matrix forms a tridiagonal system:
+
+$$A \mathbf{u}^{n+1} = \mathbf{d}^n$$
+
+$$\begin{pmatrix}
+b_1 & c_1 & 0 & \dots & 0 \\
+a_1 & b_2 & c_2 & \dots & 0 \\
+0 & a_2 & b_3 & \dots & 0 \\
+\vdots & & \ddots & \ddots & \vdots \\
+0 & \dots & 0 & a_{N-1} & b_N
+\end{pmatrix}
+\begin{pmatrix}
+u_1^{n+1} \\
+u_2^{n+1} \\
+\vdots \\
+u_N^{n+1}
+\end{pmatrix}
+=
+\begin{pmatrix}
+d_1 \\
+d_2 \\
+\vdots \\
+d_N
+\end{pmatrix}$$
+
+Rather than performing general Gaussian elimination which scales as $O(N^3)$, the **Thomas algorithm** (specialized tridiagonal Gaussian elimination) computes the forward sweep and back substitution in strictly $O(N)$ operations and $O(N)$ memory.
+
+<Callout type="tip" title="High-Performance Spatial Grids">
+Because the tridiagonal matrix entries $a$, $b$, and $c$ are constant across time iterations for uniform meshes, the forward sweep coefficients $c'_i$ can be precomputed once, reducing every subsequent time step to a minimal linear-time memory streaming pass.
+</Callout>
+
+---
+
+## 5. Dual-Language Implementation
+
+<TabbedCodeBlock client:load title="Crank-Nicolson Tridiagonal Solvers" snippets={pdeSnippets} defaultFilenamePrefix="pde_solver" />
+
+---
+
+## 6. Architectural Guidance
+
+- Use **Forward Euler** only for educational prototypes or when physical constraints naturally enforce $r \le 1/2$ without penalizing performance.
+- Use **Crank-Nicolson** whenever second-order temporal accuracy is required without worrying about artificial numerical oscillations on coarse spatial grids.
+- When solving non-linear diffusion equations (e.g. Navier-Stokes advection-diffusion), combine Crank-Nicolson with Newton-Raphson or Picard linearization per time step.
